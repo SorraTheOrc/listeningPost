@@ -71,8 +71,6 @@ def start_import(request):
   """
   global data_directory
 
-  emails_before = EmailMessage.objects.count()
-
   list_name = request.POST['list']
   input = os.path.join(data_directory, list_name)
   if (not os.path.exists(input)):
@@ -89,7 +87,6 @@ def start_import(request):
   results["list"] = list_name
   emails_after = EmailMessage.objects.count()
   results["total_emails"] = emails_after
-  results["imported"] = emails_after - emails_before
   add_main_menu(results)
 
   return render_to_response("importResults.html",
@@ -170,6 +167,9 @@ def process(file, list_name):
 
   mbox = mailbox.UnixMailbox(input, msgfactory)
 
+  duplicate = 0
+  new = 0
+
   for mail in mbox:
       body = ""
       date = None
@@ -220,14 +220,17 @@ def process(file, list_name):
             list = Maillist(list_name)
             list.save()
 
-            mail = EmailMessage(messageID = msgID, 
-                                date = date, 
-                                fromParticipant = participant,
-                                backlink = backlink, 
-                                list = list, 
-                                subject = subject, 
-                                body = body)
-            mail.save()
+            values = {'date': date, 
+                      'fromParticipant': participant,
+                      'backlink': backlink, 
+                      'list': list, 
+                      'subject': subject, 
+                      'body': body}
+            mail, created = EmailMessage.objects.get_or_create(messageID = msgID, defaults = values)
+            if created:
+              new += 1
+            else:
+              duplicate += 1
             print "Processed mail from " + mail.fromParticipant.emailAddr + " on", mail.date
       else:
           invalid += 1
@@ -236,7 +239,9 @@ def process(file, list_name):
   archive = Archive(file, list)
   archive.save()
 
-  return {"processed": processed, "invalid": invalid, "with_backlink": processed - no_backlink, "no_backlink": no_backlink}
+  return {"processed": processed, "created": new, "duplicate": duplicate, 
+          "invalid": invalid, "with_backlink": processed - no_backlink, 
+          "no_backlink": no_backlink}
 
 def add_main_menu(data):
     """
