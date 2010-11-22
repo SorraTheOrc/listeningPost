@@ -1,0 +1,10 @@
+{% extends "page.tmpl.html" %}
+
+{% block title %}{{ participant.emailAddr }}{% endblock %}
+{% block pageTitle %}{{participant/emailAddr }}{% endblock %}
+
+{% block content %}
+<ul>
+  <li>Email Address: {{ participant.emailAddr }}</li>
+</ul>
+{% endblock %}

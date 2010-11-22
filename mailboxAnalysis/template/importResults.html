@@ -1,0 +1,14 @@
+{% extends "page.tmpl.html" %}
+
+{% block title %}Results of Import{% endblock %}
+{% block pageTitle %}Results of Import{% endblock %}
+
+{% block content %}
+<p>Processed {{ processed }} mails in the list  '{{ list }}'</p>
+<ul>
+  <li>Imported {{ imported }} new emails</li>
+  <li>{{ with_backlink }} were in reply to another mail</li>
+  <li>{{ no_backlink }} were not in reply to another mail</li>
+</ul>
+<p>We now have {{ total_emails }} in the database.</p>
+{% endblock %}

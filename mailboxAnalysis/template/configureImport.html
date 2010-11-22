@@ -1,0 +1,17 @@
+{% extends "page.tmpl.html" %}
+
+{% block title %}Import{% endblock %}
+{% block pageTitle %}Import Archives{% endblock %}
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+{% block content %}
+<form action="/analysis/startImport" method="post">
+    {% csrf_token %}
+    <p>
+      <label for="id_list">List name:</label>
+      <input id="id_list" type="text" name="list"/>
+    </p>
+    <input type="submit" value="Submit"/>
+</form>
+{% endblock %}

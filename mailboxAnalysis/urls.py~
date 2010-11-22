@@ -1,0 +1,7 @@
+from django.conf.urls.defaults import *
+
+urlpatterns = patterns('mailboxAnalysis.views',
+    (r'^$', 'index'),
+    (r'^configureImport$', 'configure_import'),
+    (r'^startImport$', 'start_import'),
+)

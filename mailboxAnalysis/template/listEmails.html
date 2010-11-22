@@ -1,0 +1,27 @@
+{% extends "page.tmpl.html" %}
+
+{% block title %}All Participants{% endblock %}
+{% block pageTitle %}Participants{% endblock %}
+
+{% block content %}
+
+
+<table>
+  <tr>
+    <th>From Email</th>
+    <th>Date</th>
+    <th>Subject</th>
+    <th>In reply to</th>
+  </td>
+
+  {% for email in emails %}
+    <tr>
+      <td><a href="/analysis/participant/{{ email.fromParticipant.id }}/detail">{{ email.fromParticipant }}</a></td>
+      <td>{{ email.date }}</td>
+      <td>{{ email.subject }}</td>
+      <td>{{ email.backlinkID }}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+{% endblock %}
