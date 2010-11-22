@@ -36,6 +36,18 @@ def participant_emails(reqeust, participant_id):
   add_main_menu(data)
   return render_to_response("listEmails.html", data)
 
+def email_detail(request, email_id):
+  data = {}
+  data["email"] = get_object_or_404(EmailMessage, pk=email_id)
+  add_main_menu(data)
+  return render_to_response("detailEmail.html", data)
+
+def email_inbox(request):
+  data = {}
+  data["emails"] = EmailMessage.objects.all()
+  add_main_menu(data)
+  return render_to_response("listEmails.html", data)
+
 def configure_import(request):
   """
   Render a form which allows the user to configure an analysis run
@@ -202,13 +214,19 @@ def process(file, list_name):
                 try:
                   participant = Participant.objects.get(emailAddr = address)
                 except Participant.DoesNotExist:
-                  participant = Participant(address, pgp, 1)
+                  participant = Participant(emailAddr = address, pgp = pgp)
                   participant.save()
           
             list = Maillist(list_name)
             list.save()
 
-            mail = EmailMessage(msgID, date, participant.id, backlink, list, subject, body)
+            mail = EmailMessage(messageID = msgID, 
+                                date = date, 
+                                fromParticipant = participant,
+                                backlink = backlink, 
+                                list = list, 
+                                subject = subject, 
+                                body = body)
             mail.save()
             print "Processed mail from " + mail.fromParticipant.emailAddr + " on", mail.date
       else:
@@ -225,6 +243,7 @@ def add_main_menu(data):
     Add the main menu items to the data dictionary.
     """
     data["menu"] = [{"text": "Home", "href":  "/analysis"},
+                    {"text": "Inbox", "href":  "/analysis/mail/inbox"},
                     {"text": "List participants", "href":  "/analysis/participant/list"},
                     {"text": "Import archives", "href":  "/analysis/configureImport"},]
     return data

@@ -15,11 +15,11 @@ class Archive(models.Model):
         return u"%s" % (self.filename)
 
 class Participant(models.Model):
+    id = models.AutoField(primary_key = True)
     emailAddr = models.CharField(max_length=200, unique=True)
     pgp = models.TextField(null=True)
     email_count = models.IntegerField(default = 0)
     reply_to_count = models.IntegerField(default = 0)
-    id = models.AutoField(primary_key = True)
     
     def increaseMailCount(self):
         self.email_count += 1
@@ -31,7 +31,8 @@ class Participant(models.Model):
         return u"%s" % (self.emailAddr)
 
 class EmailMessage(models.Model):
-    messageID = models.CharField(max_length=200, primary_key=True)
+    id = models.AutoField(primary_key = True)
+    messageID = models.CharField(max_length=200)
     date = models.DateTimeField()
     fromParticipant = models.ForeignKey(Participant)
     backlink = models.CharField(max_length=200, null = True)

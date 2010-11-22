@@ -18,8 +18,14 @@
     <tr>
       <td><a href="/analysis/participant/{{ email.fromParticipant.id }}/detail">{{ email.fromParticipant }}</a></td>
       <td>{{ email.date }}</td>
-      <td>{{ email.subject }}</td>
-      <td>{{ email.backlinkID }}</td>
+      <td><a href="/analysis/mail/{{ email.id }}/read" alt="Read the email with subject '{{ email.subject }}'" title="Read email">{{ email.subject }}</a></td>
+      <td>
+	{% if email.backlink %}
+	  {{ email.backlink }}
+        {% else %}
+          &nbsp;
+	{% endif %}
+      </td>
     </tr>
   {% endfor %}
 </table>
