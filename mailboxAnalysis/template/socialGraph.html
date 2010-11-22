@@ -1,0 +1,23 @@
+{% extends "page.tmpl.html" %}
+
+{% block title %}{{ participant.emailAddr }} - Social graph{% endblock %}
+{% block pageTitle %}{{ participant.emailAddr }} - Social Graph{% endblock %}
+
+{% block content %}
+
+
+<table>
+  <tr>
+    <th>Participant</th>
+    <th>Strength</th>
+  </td>
+
+  {% for participant, strength in participants.items %}
+    <tr>
+      <td>{{ participant }}</td>
+      <td>{{ strength }}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+{% endblock %}
