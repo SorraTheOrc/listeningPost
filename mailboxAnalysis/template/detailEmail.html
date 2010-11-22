@@ -1,0 +1,12 @@
+{% extends "page.tmpl.html" %}
+
+{% block title %}{{ email.subject }}{% endblock %}
+{% block pageTitle %}{{ email.subject }}{% endblock %}
+
+{% block content %}
+<ul>
+  <li>Subject: {{ email.subject }}</li>
+  <li>Date: {{ email.date }}</li>
+</ul>
+<pre>{{ email.body }}</pre>
+{% endblock %}
