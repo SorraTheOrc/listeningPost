@@ -32,7 +32,7 @@ class Participant(models.Model):
 
 class EmailMessage(models.Model):
     id = models.AutoField(primary_key = True)
-    messageID = models.CharField(max_length=200)
+    messageID = models.CharField(max_length=200, unique = True)
     date = models.DateTimeField()
     fromParticipant = models.ForeignKey(Participant)
     backlink = models.CharField(max_length=200, null = True)
