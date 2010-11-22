@@ -1,0 +1,20 @@
+Social Graph
+============
+
+Currently the social graph only considers replies to a person as being important. We need to also count replies from a person. For example:
+
+A posts mail 1
+B replies to 1 (relationship with A)
+A posts mail 2
+C replies to 2 (relationship with A)
+A replies to B1 (relationship with B)
+
+The relationship between A and B should be stronger than the one between A and C.
+
+---
+
+Currently all replies are equally weighted. We should provide a decay setting that allows us to make more recent links more important.
+
+---
+
+Keyword filtering on replies would allow us to rate replies as "thanks", "requests", "code", "angry", "happy" etc. This in turn would allow us to say that the relationship between A and B is 80% about code, but they are 20% angry with one another.
