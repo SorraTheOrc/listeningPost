@@ -48,6 +48,38 @@ def email_inbox(request):
   add_main_menu(data)
   return render_to_response("listEmails.html", data)
 
+def participant_social(request, participant_id):
+  """
+  Calculate and display the social graph for a given participant.
+  """
+  decay = 5
+  maxage = 2000
+  data = {}
+
+  participant = get_object_or_404(Participant, pk=participant_id)
+  data["participant"] = participant
+
+  emails = EmailMessage.objects.filter(fromParticipant = participant).exclude(backlink = None)
+
+  friends = {}
+  for email in emails:
+    mail = EmailMessage.objects.filter(messageID = email.backlink)
+    if len(mail) == 1:
+      repliedParticipant = mail[0].fromParticipant
+      try:
+        strength = friends[str(repliedParticipant.emailAddr)]
+      except:
+        strength = 0
+      daysOld = (datetime.datetime.now() - email.date).days
+      if daysOld <= maxage:
+        friends[str(repliedParticipant.emailAddr)] = strength + ((maxage - daysOld) /decay)
+    elif len(mail) > 1:
+      raise NotSupportException("We can't currently handle multiple emails with the same message ID")
+
+  data["participants"] = friends
+  add_main_menu(data)
+  return render_to_response("socialGraph.html", data)
+
 def configure_import(request):
   """
   Render a form which allows the user to configure an analysis run
@@ -124,16 +156,12 @@ def get_backlink(mail):
     We are using the info provided by D.J. Bernstein at http://cr.yp.to/immhf/thread.html
     """
 
-    # start with an empty list of references
     references = []
     
-    # first, get all the references to anything that looks like a message ID
     reference = mail.get('References')
     if reference:
         references = msgid_pattern.findall(reference)
 
-    # second, if we have an reply-to header, get the message ID out of it and 
-    # append it to the references, in case it's not there yet.
     reply = mail.get('In-Reply-To')
     if reply:
         replies = msgid_pattern.findall(reply)
@@ -142,13 +170,10 @@ def get_backlink(mail):
                 if not reply in references:
                     references.append(reply)
 
-    # finally, return the last one of the references, which should be the
-    # most immediate parent.
-    
     if len(references) > 0:
         return references[-1]
     else:
-        return ""
+        return None
     
 
 def process(file, list_name):
