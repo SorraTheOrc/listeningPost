@@ -13,7 +13,8 @@ The relationship between A and B should be stronger than the one between A and C
 
 ---
 
-Currently all replies are equally weighted. We should provide a decay setting that allows us to make more recent links more important.
+The weights and maxage of emails is hard coded into to social graph view. These need to be brought
+out into config files.
 
 ---
 
