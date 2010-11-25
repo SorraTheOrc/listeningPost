@@ -26,7 +26,11 @@ def list_participants(reqeust):
 
 def participant_detail(reqeust, participant_id):
   data = {}
-  data["participant"] = get_object_or_404(Participant, pk=participant_id)
+  participant = get_object_or_404(Participant, pk=participant_id)
+  data["participant"] = participant
+  data['firstEmail'] = EmailMessage.objects.filter(fromParticipant = participant).order_by('date')[0]
+  data['lastEmail'] = EmailMessage.objects.filter(fromParticipant = participant).order_by('-date')[0]
+
   add_main_menu(data)
   return render_to_response("detailParticipant.html", data)
 
