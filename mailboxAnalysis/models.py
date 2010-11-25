@@ -18,10 +18,12 @@ class Participant(models.Model):
     id = models.AutoField(primary_key = True)
     emailAddr = models.CharField(max_length=200, unique=True)
     pgp = models.TextField(null=True)
-    email_count = models.IntegerField(default = 0)
     
     def increaseMailCount(self):
         self.email_count += 1
+
+    def getEmailCount(self):
+        return EmailMessage.objects.filter(fromParticipant = self).count()
 
     def getReplyToOthersCount(self):
         return EmailMessage.objects.filter(fromParticipant = self).exclude(backlink = None).count()
@@ -45,10 +47,3 @@ class EmailMessage(models.Model):
     class Meta:
         ordering = ('date',)
 
-def message_saved(sender, instance, created, **kwargs):
-    if created:
-        fromParticipant = instance.fromParticipant
-        fromParticipant.increaseMailCount()
-        fromParticipant.save()
-
-post_save.connect(message_saved, sender=EmailMessage)

@@ -17,7 +17,7 @@
   {% for participant in participants %}
     <tr>
       <td><a href="/analysis/participant/{{ participant.id }}/detail">{{ participant.emailAddr }}</a></td>
-      <td>{{ participant.email_count }}</td>
+      <td>{{ participant.getEmailCount }}</td>
       <td>{{ participant.getReplyToOthersCount }}</td>
       <td><a href="/analysis/participant/{{ participant.id }}/social">Social Graph</a></td>
     </tr>
