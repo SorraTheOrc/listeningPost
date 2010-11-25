@@ -48,9 +48,20 @@ class EmailMessage(models.Model):
         Get a dictionary containing a count of words in the body of this email.
         Common stop words and punctioation are removed.
         """
-        stopwords = "a and are at be for from in is it of on this to the"
-        punctuation = re.compile(r'[.?!,":;*+]')
-        wordlist = self.body.lower().split()
+        content = self.body.lower()
+        # strip signatures
+        print "before", content
+        sig_start = content.find('___')
+        if not sig_start:
+            sig_start = content.find('---')
+        if sig_start:
+            content = content[:sig_start]
+        print "after", content
+
+        wordlist = content.split()
+        stopwords = "a and are at be for from in is it of on so this there to the with"
+        punctuation = re.compile(r'[.?!,":;*+<>'']')
+
         freq_dict = {}
         for word in wordlist:
             if word not in stopwords:
