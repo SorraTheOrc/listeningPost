@@ -21,7 +21,8 @@
       <td><a href="/analysis/mail/{{ email.id }}/read" alt="Read the email with subject '{{ email.subject }}'" title="Read email">{{ email.subject }}</a></td>
       <td>
 	{% if email.backlink %}
-	  {{ email.backlink }}
+
+	  {{ email.backlink.foo }}
         {% else %}
           &nbsp;
 	{% endif %}

@@ -59,23 +59,34 @@ def participant_social(request, participant_id):
   participant = get_object_or_404(Participant, pk=participant_id)
   data["participant"] = participant
 
-  emails = EmailMessage.objects.filter(fromParticipant = participant).exclude(backlink = None)
+  emails = EmailMessage.objects.filter(fromParticipant = participant)
 
   friends = {}
   for email in emails:
-    mail = EmailMessage.objects.filter(messageID = email.backlink)
-    if len(mail) == 1:
-      repliedParticipant = mail[0].fromParticipant
+    if email.backlink is not None:
+      replyTo = EmailMessage.objects.filter(messageID = email.backlink)
+      if len(replyTo) == 1:
+        repliedParticipant = replyTo[0].fromParticipant
+        try:
+          strength = friends[str(repliedParticipant.emailAddr)]
+        except:
+          strength = 0
+        daysOld = (datetime.datetime.now() - email.date).days
+        if daysOld <= maxage:
+          friends[str(repliedParticipant.emailAddr)] = strength + ((maxage - daysOld) /decay)
+      elif len(replyTo) > 1:
+        raise NotSupportException("We can't currently handle multiple emails with the same message ID")
+    replies = EmailMessage.objects.filter(backlink = email.messageID)
+    for reply in replies:
+      participant = reply.fromParticipant
       try:
-        strength = friends[str(repliedParticipant.emailAddr)]
+        strength = friends[str(participant.emailAddr)]
       except:
         strength = 0
-      daysOld = (datetime.datetime.now() - email.date).days
+      daysOld = (datetime.datetime.now() - reply.date).days
       if daysOld <= maxage:
-        friends[str(repliedParticipant.emailAddr)] = strength + ((maxage - daysOld) /decay)
-    elif len(mail) > 1:
-      raise NotSupportException("We can't currently handle multiple emails with the same message ID")
-
+        friends[str(participant.emailAddr)] = strength + ((maxage - daysOld) /decay)
+    
   data["participants"] = friends
   add_main_menu(data)
   return render_to_response("socialGraph.html", data)

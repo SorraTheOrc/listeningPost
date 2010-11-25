@@ -1,0 +1,15 @@
+Social Graph
+============
+
+Settings
+--------
+
+The weights and maxage of emails is hard coded into to social graph view. These need to be brought
+out into config files.
+
+---
+
+Keywords
+--------
+
+Keyword filtering on replies would allow us to rate replies as "thanks", "requests", "code", "angry", "happy" etc. This in turn would allow us to say that the relationship between A and B is 80% about code, but they are 20% angry with one another.
