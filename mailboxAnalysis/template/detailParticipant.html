@@ -11,5 +11,6 @@
   <li>Replies posted: {{ participant.getReplyToOthersCount }}</li> 
   <li>First mail: {{ firstEmail.date }}</li>
   <li>Last mail: {{ lastEmail.date }}</li>
+  <li><a href="/analysis/participant/{{ participant.id }}/social">Social Graph</a></li>
 </ul>
 {% endblock %}
