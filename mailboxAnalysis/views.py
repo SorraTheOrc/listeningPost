@@ -1,3 +1,4 @@
+
 from mailboxAnalysis.models import Archive
 from mailboxAnalysis.models import EmailMessage
 from mailboxAnalysis.models import Maillist
@@ -30,7 +31,18 @@ def participant_detail(reqeust, participant_id):
   data["participant"] = participant
   data['firstEmail'] = EmailMessage.objects.filter(fromParticipant = participant).order_by('date')[0]
   data['lastEmail'] = EmailMessage.objects.filter(fromParticipant = participant).order_by('-date')[0]
-
+  
+  emails = EmailMessage.objects.filter(fromParticipant = participant)
+  dictionary = {} 
+  for email in emails:
+    words = email.dictionary
+    for word in words:
+      try:
+        dictionary[str(word)] += 1
+      except:
+        dictionary[str(word)] = 1
+  data["word_count"] = sorted(dictionary.items(), key = lambda word: -word[1])
+  
   add_main_menu(data)
   return render_to_response("detailParticipant.html", data)
 

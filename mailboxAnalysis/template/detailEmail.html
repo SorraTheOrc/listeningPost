@@ -9,7 +9,7 @@
   <li>Date: {{ email.date }}</li>
   <li>Most Frequent Words: 
     <ul>
-      {% for word, count in email.get_word_count %}
+      {% for word, count in email.word_count|slice:":5" %}
         <li>{{ word }}: {{ count }}</li>
       {% endfor %}
     </ul>

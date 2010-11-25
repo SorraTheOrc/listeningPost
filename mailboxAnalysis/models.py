@@ -43,12 +43,12 @@ class EmailMessage(models.Model):
     subject = models.CharField(max_length=150)
     body = models.TextField()
 
-    def get_word_count(self):
+    def _get_word_dictionary(self):
         """
         Get a dictionary containing a count of words in the body of this email.
         Common stop words and punctioation are removed.
         """
-        stopwords = "a are be for from in is of on this to the"
+        stopwords = "a and are at be for from in is it of on this to the"
         punctuation = re.compile(r'[.?!,":;*+]')
         wordlist = self.body.lower().split()
         freq_dict = {}
@@ -59,8 +59,19 @@ class EmailMessage(models.Model):
                 freq_dict[str(word)] += 1
               except:
                 freq_dict[str(word)] = 1
+        return freq_dict
+    dictionary = property(_get_word_dictionary)
+
+    def _get_word_count(self):
+        """
+        Get a sotrted list containing a count of words in the body of this email.
+        Common stop words and punctioation are removed.
+        """
+        print "in word count"
+        freq_dict = self._get_word_dictionary()
         freq_list = freq_dict.items()
         return sorted(freq_list, key = lambda word: -word[1])
+    word_count = property(_get_word_count)
 
     def __unicode__(self):
         return u"'%s' on '%s' from %s" % (self.subject, self.list.name, self.fromParticipant.emailAddr)
