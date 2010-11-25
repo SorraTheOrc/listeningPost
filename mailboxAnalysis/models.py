@@ -19,13 +19,12 @@ class Participant(models.Model):
     emailAddr = models.CharField(max_length=200, unique=True)
     pgp = models.TextField(null=True)
     email_count = models.IntegerField(default = 0)
-    reply_to_count = models.IntegerField(default = 0)
     
     def increaseMailCount(self):
         self.email_count += 1
 
-    def increaseReplyToCount(self):
-        self.reply_to_count += 1
+    def getReplyToOthersCount(self):
+        return EmailMessage.objects.filter(fromParticipant = self).exclude(backlink = None).count()
 
     def __unicode__(self):
         return u"%s" % (self.emailAddr)
@@ -50,8 +49,6 @@ def message_saved(sender, instance, created, **kwargs):
     if created:
         fromParticipant = instance.fromParticipant
         fromParticipant.increaseMailCount()
-        if instance.backlink is not None:
-            fromParticipant.increaseReplyToCount()
         fromParticipant.save()
 
 post_save.connect(message_saved, sender=EmailMessage)

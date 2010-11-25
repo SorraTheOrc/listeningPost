@@ -8,7 +8,7 @@
   <li>ID: {{participant.id }}</li>
   <li>Email address: {{ participant.emailAddr }}</li>
   <li>Emails sent: <a href="/analysis/participant/{{ participant.id }}/emails" alt="Display all emails from this participant" title="Participants emails">{{ participant.email_count }}</a></li>
-  <li>Threads started: {{ participant.reply_to_count }}</li>
+  <li>Replies posted: {{ repliesToOthers }}</li> 
   <li>First mail: {{ firstEmail.date }}</li>
   <li>Last mail: {{ lastEmail.date }}</li>
 </ul>
