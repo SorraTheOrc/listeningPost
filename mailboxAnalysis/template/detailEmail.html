@@ -7,6 +7,13 @@
 <ul>
   <li>Subject: {{ email.subject }}</li>
   <li>Date: {{ email.date }}</li>
+  <li>Most Frequent Words: 
+    <ul>
+      {% for word, count in email.get_word_count %}
+        <li>{{ word }}: {{ count }}</li>
+      {% endfor %}
+    </ul>
+  </li>
 </ul>
 <pre>{{ email.body }}</pre>
 {% endblock %}

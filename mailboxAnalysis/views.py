@@ -41,8 +41,9 @@ def participant_emails(reqeust, participant_id):
   return render_to_response("listEmails.html", data)
 
 def email_detail(request, email_id):
+  email = get_object_or_404(EmailMessage, pk = email_id)
   data = {}
-  data["email"] = get_object_or_404(EmailMessage, pk=email_id)
+  data["email"] = email
   add_main_menu(data)
   return render_to_response("detailEmail.html", data)
 
