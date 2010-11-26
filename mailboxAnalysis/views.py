@@ -112,11 +112,17 @@ def participant_social(request, participant_id):
 
   dot = "graph G {\n"
   dot += "model=circuit;\n"
-  dot += '"' + str(participant.emailAddr) + '" [color=red, style=filled, fillcolor=red, fontcolor=yellow, label="' + str(participant) + '"];\n\n'
+  dot += '"' + str(participant.emailAddr) + '" [color=red, style=filled, fillcolor=red, fontcolor=yellow, label="' + participant.label + '"];\n\n'
   for friend, strength in friends:
-    dot += '"' + friend + '" [color=black, fontcolor=black, label="' + friend  + '"];\n'
+    at = friend.find('@')
+    if at:
+      label = friend[:at]
+    else:
+      label = friend
+    dot += '"' + str(participant) + '" -- "' + friend + '" [len = ' + str(2 + (Decimal(min_weight - strength) / Decimal(max_weight))) + '];\n'
+    dot += '"' + friend + '" [color=black, fontcolor=black, label="' + label  + '"];\n'
     print (strength - min_weight)/max_weight
-    dot += '"' + str(participant) + '" -- "' + friend + '" [len = '+ str(2 + (Decimal(-strength + min_weight) / Decimal(max_weight)))  + '];\n'
+
     dot += '\n'
   dot += "\n}"
 

@@ -30,6 +30,15 @@ class Participant(models.Model):
     def getReplyToOthersCount(self):
         return EmailMessage.objects.filter(fromParticipant = self).exclude(backlink = None).count()
 
+    def _get_label(self):
+      at = self.emailAddr.find('@')
+      if at:
+        label = self.emailAddr[:at]
+      else:
+        label = self.emailAddr
+      return label
+    label = property(_get_label)
+
     def __unicode__(self):
         return u"%s" % (self.emailAddr)
 
