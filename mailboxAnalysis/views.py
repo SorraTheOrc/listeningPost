@@ -7,7 +7,7 @@ from django.core.context_processors import csrf
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-import os, datetime, email.Utils, glob, gzip, mailbox, re, string, time
+import os, datetime, email.Utils, glob, gzip, mailbox, operator, re, string, time
 
 data_directory = "archives"
 
@@ -95,16 +95,30 @@ def participant_social(request, participant_id):
         raise NotSupportException("We can't currently handle multiple emails with the same message ID")
     replies = EmailMessage.objects.filter(backlink = email.messageID)
     for reply in replies:
-      participant = reply.fromParticipant
+      friend = reply.fromParticipant
       try:
-        strength = friends[str(participant.emailAddr)]
+        strength = friends[str(friend.emailAddr)]
       except:
         strength = 0
       daysOld = (datetime.datetime.now() - reply.date).days
       if daysOld <= maxage:
-        friends[str(participant.emailAddr)] = strength + ((maxage - daysOld) /decay)
-    
+        friends[str(friend .emailAddr)] = strength + ((maxage - daysOld) /decay)
+  
+  friends = sorted(friends.iteritems(), key = operator.itemgetter(1))
+  friends.reverse();
+  print friends
+
+  dot = "graph G {\n"
+  dot += "model=circuit;\n"
+  dot += '"' + str(participant.emailAddr) + '" [color=red, style=filled, fillcolor=red, fontcolor=yellow, label="' + str(participant) + '"];\n\n'
+  for friend, strength in friends:
+    dot += '"' + friend + '" [color=black, fontcolor=black, label="' + friend  + '"];\n'
+    dot += '"' + str(participant) + '" -- "' + friend + '" [len ='+ str(strength)  + '];\n'
+    dot += '\n'
+  dot += "\n}"
+
   data["participants"] = friends
+  data["dot"] = dot
   add_main_menu(data)
   return render_to_response("socialGraph.html", data)
 

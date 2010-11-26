@@ -12,12 +12,16 @@
     <th>Strength</th>
   </td>
 
-  {% for participant, strength in participants.items %}
+  {% for participant, strength in participants %}
     <tr>
       <td>{{ participant }}</td>
       <td>{{ strength }}</td>
     </tr>
   {% endfor %}
+
 </table>
+
+<h2>DOT file</h2>
+<pre>{{ dot }}<pre>
 
 {% endblock %}
