@@ -9,6 +9,44 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 import os, datetime, email.Utils, glob, gzip, mailbox, operator, re, string, time
 
+
+def _get_social_graph(emails):
+    decay = 5
+    maxage = 2000
+    friends = {}
+    for email in emails:
+        if email.backlink is not None:
+            replyTo = EmailMessage.objects.filter(messageID=email.backlink)
+            if len(replyTo) == 1:
+                repliedParticipant = replyTo[0].fromParticipant
+                try:
+                    strength = friends[str(repliedParticipant.emailAddr)]
+                except:
+                    strength = 0
+                
+                daysOld = (datetime.datetime.now() - email.date).days
+                if daysOld <= maxage:
+                    friends[str(repliedParticipant.emailAddr)] = strength + ((maxage - daysOld) / decay)
+                
+            elif len(replyTo) > 1:
+                raise NotSupportException("We can't currently handle multiple emails with the same message ID")
+            
+        replies = EmailMessage.objects.filter(backlink=email.messageID)
+        for reply in replies:
+            friend = reply.fromParticipant
+            try:
+                strength = friends[str(friend.emailAddr)]
+            except:
+                strength = 0
+            
+            daysOld = (datetime.datetime.now() - reply.date).days
+            if daysOld <= maxage:
+                friends[str(friend.emailAddr)] = strength + ((maxage - daysOld) / decay)
+            
+    friends = sorted(friends.iteritems(), key=operator.itemgetter(1))
+    friends.reverse()
+    return friends
+
 data_directory = "archives"
 
 def index(request):
@@ -65,12 +103,10 @@ def email_inbox(request):
   add_main_menu(data)
   return render_to_response("listEmails.html", data)
 
-def participant_social(request, participant_id):
+def participant_social(request, participant_id, depth = 2):
   """
   Calculate and display the social graph for a given participant.
   """
-  decay = 5
-  maxage = 2000
   data = {}
 
   participant = get_object_or_404(Participant, pk=participant_id)
@@ -78,34 +114,7 @@ def participant_social(request, participant_id):
 
   emails = EmailMessage.objects.filter(fromParticipant = participant)
 
-  friends = {}
-  for email in emails:
-    if email.backlink is not None:
-      replyTo = EmailMessage.objects.filter(messageID = email.backlink)
-      if len(replyTo) == 1:
-        repliedParticipant = replyTo[0].fromParticipant
-        try:
-          strength = friends[str(repliedParticipant.emailAddr)]
-        except:
-          strength = 0
-        daysOld = (datetime.datetime.now() - email.date).days
-        if daysOld <= maxage:
-          friends[str(repliedParticipant.emailAddr)] = strength + ((maxage - daysOld) /decay)
-      elif len(replyTo) > 1:
-        raise NotSupportException("We can't currently handle multiple emails with the same message ID")
-    replies = EmailMessage.objects.filter(backlink = email.messageID)
-    for reply in replies:
-      friend = reply.fromParticipant
-      try:
-        strength = friends[str(friend.emailAddr)]
-      except:
-        strength = 0
-      daysOld = (datetime.datetime.now() - reply.date).days
-      if daysOld <= maxage:
-        friends[str(friend .emailAddr)] = strength + ((maxage - daysOld) /decay)
-  
-  friends = sorted(friends.iteritems(), key = operator.itemgetter(1))
-  friends.reverse();
+  friends = _get_social_graph(emails)
 
   min_weight = friends[len(friends)-1][1]
   max_weight = friends[0][1]
