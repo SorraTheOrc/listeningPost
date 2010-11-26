@@ -2,21 +2,29 @@ from mailboxAnalysis.models import Archive
 from mailboxAnalysis.models import EmailMessage
 from mailboxAnalysis.models import Maillist
 from mailboxAnalysis.models import Participant
+from datetime import datetime, timedelta
 from decimal import *
 from django.core.context_processors import csrf
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-import os, datetime, email.Utils, glob, gzip, mailbox, operator, re, string, time
+import os, email.Utils, glob, gzip, mailbox, operator, re, string, time
 
 
-def _get_social_graph(emails):
-    decay = 5
-    maxage = 2000
+def _get_social_graph(emails, decay = 5, maxage = 2000, depth = 2):
+    """
+    Given a set of emails from a participant calculate the social graph contained within them.
+    An email that is a reply to another implies a relationship between the two aprticipants.
+    An email in reply to one of the supplied emails also implies a relationship.
+    The strength of the relationship is strong the more recently the exchange took place.
+    Higher 'decay' values result in weaker relationships over time. 
+    Emails exchanged over 'maxage' days ago are not counted.
+    """
     friends = {}
+    earliest_date = datetime.now() - timedelta(maxage)
     for email in emails:
         if email.backlink is not None:
-            replyTo = EmailMessage.objects.filter(messageID=email.backlink)
+            replyTo = EmailMessage.objects.filter(messageID=email.backlink).filter(date__gte=earliest_date)
             if len(replyTo) == 1:
                 repliedParticipant = replyTo[0].fromParticipant
                 try:
@@ -24,24 +32,21 @@ def _get_social_graph(emails):
                 except:
                     strength = 0
                 
-                daysOld = (datetime.datetime.now() - email.date).days
-                if daysOld <= maxage:
-                    friends[str(repliedParticipant.emailAddr)] = strength + ((maxage - daysOld) / decay)
-                
+                daysOld = (datetime.now() - email.date).days
+                friends[str(repliedParticipant.emailAddr)] = strength + ((maxage - daysOld) / decay)
+                                
             elif len(replyTo) > 1:
                 raise NotSupportException("We can't currently handle multiple emails with the same message ID")
             
-        replies = EmailMessage.objects.filter(backlink=email.messageID)
+        replies = EmailMessage.objects.filter(backlink=email.messageID).filter(date__gte=earliest_date)
         for reply in replies:
             friend = reply.fromParticipant
             try:
                 strength = friends[str(friend.emailAddr)]
             except:
                 strength = 0
-            
-            daysOld = (datetime.datetime.now() - reply.date).days
-            if daysOld <= maxage:
-                friends[str(friend.emailAddr)] = strength + ((maxage - daysOld) / decay)
+            daysOld = (datetime.now() - reply.date).days
+            friends[str(friend.emailAddr)] = strength + ((maxage - daysOld) / decay)
             
     friends = sorted(friends.iteritems(), key=operator.itemgetter(1))
     friends.reverse()
@@ -103,7 +108,7 @@ def email_inbox(request):
   add_main_menu(data)
   return render_to_response("listEmails.html", data)
 
-def participant_social(request, participant_id, depth = 2):
+def participant_social(request, participant_id):
   """
   Calculate and display the social graph for a given participant.
   """
@@ -116,24 +121,27 @@ def participant_social(request, participant_id, depth = 2):
 
   friends = _get_social_graph(emails)
 
-  min_weight = friends[len(friends)-1][1]
-  max_weight = friends[0][1]
-
-  dot = "graph G {\n"
-  dot += "model=circuit;\n"
-  dot += '"' + str(participant.emailAddr) + '" [color=red, style=filled, fillcolor=red, fontcolor=yellow, label="' + participant.label + '"];\n\n'
-  for friend, strength in friends:
-    at = friend.find('@')
-    if at:
-      label = friend[:at]
-    else:
-      label = friend
-    dot += '"' + str(participant) + '" -- "' + friend + '" [len = ' + str(2 + (Decimal(min_weight - strength) / Decimal(max_weight))) + '];\n'
-    dot += '"' + friend + '" [color=black, fontcolor=black, label="' + label  + '"];\n'
-    print (strength - min_weight)/max_weight
-
-    dot += '\n'
-  dot += "\n}"
+  # Create DOT file
+  dot = ""
+  if len(friends) > 0:
+      min_weight = friends[len(friends)-1][1]
+      max_weight = friends[0][1]
+    
+      dot = "graph G {\n"
+      dot += "model=circuit;\n"
+      dot += '"' + str(participant.emailAddr) + '" [color=red, style=filled, fillcolor=red, fontcolor=yellow, label="' + participant.label + '"];\n\n'
+      for friend, strength in friends:
+        at = friend.find('@')
+        if at:
+          label = friend[:at]
+        else:
+          label = friend
+        dot += '"' + str(participant) + '" -- "' + friend + '" [len = ' + str(2 + (Decimal(min_weight - strength) / Decimal(max_weight))) + '];\n'
+        dot += '"' + friend + '" [color=black, fontcolor=black, label="' + label  + '"];\n'
+        print (strength - min_weight)/max_weight
+    
+        dot += '\n'
+      dot += "\n}"
 
   data["participants"] = friends
   data["dot"] = dot
@@ -268,7 +276,7 @@ def process(file, list_name):
             date_header = mail.get('Date')
             if (date_header): 
                 EpochSeconds = time.mktime(email.Utils.parsedate(date_header))
-                date = datetime.datetime.fromtimestamp(EpochSeconds)
+                date = datetime.fromtimestamp(EpochSeconds)
                 
             subject = mail.get('Subject', "Blank subject")
             if mail.is_multipart():
