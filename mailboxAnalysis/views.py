@@ -1,8 +1,8 @@
-
 from mailboxAnalysis.models import Archive
 from mailboxAnalysis.models import EmailMessage
 from mailboxAnalysis.models import Maillist
 from mailboxAnalysis.models import Participant
+from decimal import *
 from django.core.context_processors import csrf
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
@@ -106,14 +106,17 @@ def participant_social(request, participant_id):
   
   friends = sorted(friends.iteritems(), key = operator.itemgetter(1))
   friends.reverse();
-  print friends
+
+  min_weight = friends[len(friends)-1][1]
+  max_weight = friends[0][1]
 
   dot = "graph G {\n"
   dot += "model=circuit;\n"
   dot += '"' + str(participant.emailAddr) + '" [color=red, style=filled, fillcolor=red, fontcolor=yellow, label="' + str(participant) + '"];\n\n'
   for friend, strength in friends:
     dot += '"' + friend + '" [color=black, fontcolor=black, label="' + friend  + '"];\n'
-    dot += '"' + str(participant) + '" -- "' + friend + '" [len ='+ str(strength)  + '];\n'
+    print (strength - min_weight)/max_weight
+    dot += '"' + str(participant) + '" -- "' + friend + '" [len = '+ str(2 + (Decimal(-strength + min_weight) / Decimal(max_weight)))  + '];\n'
     dot += '\n'
   dot += "\n}"
 
