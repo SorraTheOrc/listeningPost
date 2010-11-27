@@ -1,0 +1,12 @@
+body {
+}
+
+.errorlist {
+  color: red;
+}
+
+.horizontal_menu li {
+  display: inline;
+  list-style-type: none;
+  padding-right: 20px;
+}
