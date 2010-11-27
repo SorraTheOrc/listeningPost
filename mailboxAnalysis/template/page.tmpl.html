@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
   <title>Listening Post - {% block title %}{% endblock %}</title>
+  <link rel="stylesheet" type="text/css" href="/media/style/base.css">
 </head>
 <body>
   <h1>{% block pageTitle %}Page Title{% endblock %}</h1>
   
   {% block mainMenu %}
-    <ul class="mainMenu">
+    <ul class="horizontal_menu">
       {% for item in menu %}
         <li><a href="{{ item.href }}">{{ item.text }}</a></li>
       {% endfor %}
