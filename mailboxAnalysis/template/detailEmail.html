@@ -6,6 +6,7 @@
 {% block content %}
 <ul>
   <li>Subject: {{ email.subject }}</li>
+  <li>From: <a href="/analysis/participant/{{ email.fromParticipant.id }}/emails" alt="Display all emails from {{ email.fromParticipant }}" title="emails from {{ email.fromParticipant }}">{{ email.fromParticipant }}</a></li>
   <li>Date: {{ email.date }}</li>
   <li>Most Frequent Words: 
     <ul>
