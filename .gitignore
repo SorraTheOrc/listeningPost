@@ -21,3 +21,8 @@
 #################
 .project
 .pydevproject
+
+# Archives #
+############
+
+archives/wookie-dev
