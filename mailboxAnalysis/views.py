@@ -128,6 +128,13 @@ def report_participant(request):
   data["new_participants"] = new_participants
   add_main_menu(data)
   return render_to_response("reportParticipant.html", data)
+  
+def mailinglist_list(request):
+    lists = _paginate(request, Maillist.objects.all())
+    data = {}
+    data["lists"] = lists
+    add_main_menu(data)
+    return render_to_response("listMailinglist.html", data)
 
 def email_detail(request, email_id):
   email = get_object_or_404(EmailMessage, pk = email_id)
@@ -379,6 +386,7 @@ def add_main_menu(data):
     """
     data["menu"] = [{"text": "Home", "href":  "/analysis"},
                     {"text": "Inbox", "href":  "/analysis/mail/inbox"},
+                    {"text": "Mail Lists", "href":  "/analysis/mailinglist/list"},
                     {"text": "List participants", "href":  "/analysis/participant/list"},
                     {"text": "Import archives", "href":  "/analysis/configureImport"},
                     {"text": "Report", "href":  "/analysis/report/participant"},]

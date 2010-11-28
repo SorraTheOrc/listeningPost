@@ -5,7 +5,11 @@ import re
 
 class Maillist(models.Model):
     name = models.CharField(max_length = 35, primary_key=True)
-
+    
+    def _get_email_count(self):
+        return EmailMessage.objects.filter(list = self).count()
+    email_count = property(_get_email_count)
+    
     def __unicode__(self):
         return u"%s" % (self.name)
 

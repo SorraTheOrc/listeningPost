@@ -1,0 +1,39 @@
+{% extends "page.tmpl.html" %}
+
+{% block title %}All Participants{% endblock %}
+{% block pageTitle %}Participants{% endblock %}
+
+{% block content %}
+
+<table>
+  <tr>
+    <th>Mailing List Name</th>
+    <th>Emails</th>
+  </td>
+
+  {% for list in lists.object_list %}
+    <tr>
+      <td>{{ list.name }}</td>
+      <td>{{ list.email_count }}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if lists.has_previous %}
+            <a href="?page={{ lists.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ lists.number }} of {{ lists.paginator.num_pages }}.
+        </span>
+
+        {% if lists.has_next %}
+            <a href="?page={{ lists.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+
+
+{% endblock %}
