@@ -5,11 +5,27 @@ from mailboxAnalysis.models import Participant
 from datetime import datetime, timedelta
 from decimal import *
 from django.core.context_processors import csrf
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 import os, email.Utils, glob, gzip, mailbox, operator, re, string, time
 
+
+
+def _paginate(request, object_list):
+    paginator = Paginator(object_list, 15)
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    
+    try:
+        emails = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        emails = paginator.page(paginator.num_pages)
+    
+    return emails
 
 def _get_social_graph(emails, participant, decay = 5, maxage = 2000, depth = 2):
     """
@@ -63,9 +79,10 @@ def index(request):
   add_main_menu(data)
   return render_to_response('index.html', data)
 
-def list_participants(reqeust):
+def list_participants(request):
+  participants = _paginate(request, Participant.objects.all())
   data = {}
-  data["participants"] = Participant.objects.all()
+  data["participants"] = participants
   add_main_menu(data)
   return render_to_response("listParticipants.html", data)
 
@@ -90,9 +107,10 @@ def participant_detail(reqeust, participant_id):
   add_main_menu(data)
   return render_to_response("detailParticipant.html", data)
 
-def participant_emails(reqeust, participant_id):
+def participant_emails(request, participant_id):
+  emails = _paginate(request, EmailMessage.objects.filter(fromParticipant = participant_id))
   data = {}
-  data["emails"] = EmailMessage.objects.filter(fromParticipant = participant_id)
+  data["emails"] = emails
   add_main_menu(data)
   return render_to_response("listEmails.html", data)
   
@@ -119,8 +137,11 @@ def email_detail(request, email_id):
   return render_to_response("detailEmail.html", data)
 
 def email_inbox(request):
+  email_list = EmailMessage.objects.all()
+  emails = _paginate(request, email_list)
+  
   data = {}
-  data["emails"] = EmailMessage.objects.all()
+  data["emails"] = emails 
   add_main_menu(data)
   return render_to_response("listEmails.html", data)
 

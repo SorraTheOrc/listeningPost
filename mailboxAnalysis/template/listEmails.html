@@ -5,7 +5,6 @@
 
 {% block content %}
 
-
 <table>
   <tr>
     <th>From Email</th>
@@ -14,7 +13,7 @@
     <th>In reply to</th>
   </td>
 
-  {% for email in emails %}
+  {% for email in emails.object_list %}
     <tr>
       <td><a href="/analysis/participant/{{ email.fromParticipant.id }}/detail">{{ email.fromParticipant }}</a></td>
       <td>{{ email.date }}</td>
@@ -30,5 +29,22 @@
     </tr>
   {% endfor %}
 </table>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if emails.has_previous %}
+            <a href="?page={{ emails.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ emails.number }} of {{ emails.paginator.num_pages }}.
+        </span>
+
+        {% if emails.has_next %}
+            <a href="?page={{ emails.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+
 
 {% endblock %}

@@ -14,7 +14,7 @@
     <td>Actions</td>
   </td>
 
-  {% for participant in participants %}
+  {% for participant in participants.object_list %}
     <tr>
       <td><a href="/analysis/participant/{{ participant.id }}/detail">{{ participant.emailAddr }}</a></td>
       <td>{{ participant.getEmailCount }}</td>
@@ -23,5 +23,21 @@
     </tr>
   {% endfor %}
 </table>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if participants.has_previous %}
+            <a href="?page={{ participants.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ participants.number }} of {{ participants.paginator.num_pages }}.
+        </span>
+
+        {% if participants.has_next %}
+            <a href="?page={{ participants.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
 
 {% endblock %}
