@@ -17,8 +17,8 @@
   {% for participant in participants.object_list %}
     <tr>
       <td><a href="/analysis/participant/{{ participant.id }}/detail">{{ participant.emailAddr }}</a></td>
-      <td>{{ participant.getEmailCount }}</td>
-      <td>{{ participant.getReplyToOthersCount }}</td>
+      <td>{{ participant.email_count }}</td>
+      <td>{{ participant.reply_to_count }}</td>
       <td><a href="/analysis/participant/{{ participant.id }}/social">Social Graph</a></td>
     </tr>
   {% endfor %}

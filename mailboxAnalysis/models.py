@@ -24,11 +24,13 @@ class Participant(models.Model):
     def increaseMailCount(self):
         self.email_count += 1
 
-    def getEmailCount(self):
+    def _getEmailCount(self):
         return EmailMessage.objects.filter(fromParticipant = self).count()
+    email_count = property(_getEmailCount)
 
-    def getReplyToOthersCount(self):
+    def _getReplyToOthersCount(self):
         return EmailMessage.objects.filter(fromParticipant = self).exclude(backlink = None).count()
+    reply_to_count = property(_getReplyToOthersCount)
 
     def _get_label(self):
       at = self.emailAddr.find('@')
