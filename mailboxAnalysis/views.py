@@ -94,6 +94,21 @@ def participant_emails(reqeust, participant_id):
   data["emails"] = EmailMessage.objects.filter(fromParticipant = participant_id)
   add_main_menu(data)
   return render_to_response("listEmails.html", data)
+  
+def report_participant(request):
+  earliest_date = datetime.now() - timedelta(30)
+  data = {}
+  data["total_participants"] = Participant.objects.count()
+  new_participants = []
+  participants = Participant.objects.all().distinct()
+  for participant in participants:
+    emails = EmailMessage.objects.filter(fromParticipant = participant).order_by("date")[0:1]
+    for email in emails:
+        if email.date >= earliest_date:
+            new_participants.append(participant)
+  data["new_participants"] = new_participants
+  add_main_menu(data)
+  return render_to_response("reportParticipant.html", data)
 
 def email_detail(request, email_id):
   email = get_object_or_404(EmailMessage, pk = email_id)
@@ -317,8 +332,8 @@ def process(file, list_name):
                       'fromParticipant': participant,
                       'backlink': backlink, 
                       'list': list, 
-                      'subject': subject, 
-                      'body': body}
+                      'subject': unicode(subject, errors='ignore'), 
+                      'body': unicode(body, errors='ignore')}
             mail, created = EmailMessage.objects.get_or_create(messageID = msgID, defaults = values)
             if created:
               new += 1
@@ -343,5 +358,6 @@ def add_main_menu(data):
     data["menu"] = [{"text": "Home", "href":  "/analysis"},
                     {"text": "Inbox", "href":  "/analysis/mail/inbox"},
                     {"text": "List participants", "href":  "/analysis/participant/list"},
-                    {"text": "Import archives", "href":  "/analysis/configureImport"},]
+                    {"text": "Import archives", "href":  "/analysis/configureImport"},
+                    {"text": "Report", "href":  "/analysis/report/participant"},]
     return data

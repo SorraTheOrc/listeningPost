@@ -59,22 +59,22 @@ class EmailMessage(models.Model):
         """
         content = self.body.lower()
         # strip signatures
-        print "before", content
         sig_start = content.find('___')
         if not sig_start:
             sig_start = content.find('---')
         if sig_start:
             content = content[:sig_start]
-        print "after", content
-
+        
+        punctuation = re.compile(r'[.?!,":;*+<>''-]')
+        content = punctuation.sub("", content)
+        
         wordlist = content.split()
-        stopwords = "a and are at be for from in is it of on so this there to the with"
-        punctuation = re.compile(r'[.?!,":;*+<>'']')
-
+        stopwords = "a all and are as at be but for from in is it of on so this there to the was with"
+        
         freq_dict = {}
+        
         for word in wordlist:
             if word not in stopwords:
-              word = punctuation.sub("", word)
               try:
                 freq_dict[str(word)] += 1
               except:
