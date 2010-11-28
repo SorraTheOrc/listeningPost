@@ -1,0 +1,21 @@
+{% extends "page.tmpl.html" %}
+
+{% block title %}Welcome{% endblock %}
+{% block pageTitle %}Listening Post{% endblock %}
+
+{% block content %}
+
+<h2>Participants Report</h2>
+
+<ul>
+  <li>Total participants: {{ total_participants }}</li>
+  <li>New Participants
+    <ol>
+      {% for participant in new_participants %}
+      	<li>{{ participant }}</li>
+      {% endfor %}
+    </ol>
+  </li>
+</ul>
+
+{% endblock %}
