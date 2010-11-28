@@ -1,4 +1,5 @@
 from mailboxAnalysis.models import Archive
+from mailboxAnalysis.models import EmailAction
 from mailboxAnalysis.models import EmailMessage
 from mailboxAnalysis.models import Maillist
 from mailboxAnalysis.models import Participant
@@ -114,10 +115,11 @@ def participant_emails(request, participant_id):
   add_main_menu(data)
   return render_to_response("listEmails.html", data)
   
-def report_participant(request):
+def report(request):
   earliest_date = datetime.now() - timedelta(30)
   data = {}
   data["total_participants"] = Participant.objects.count()
+  
   new_participants = []
   participants = Participant.objects.all().distinct()
   for participant in participants:
@@ -126,8 +128,15 @@ def report_participant(request):
         if email.date >= earliest_date:
             new_participants.append(participant)
   data["new_participants"] = new_participants
+  
+  overdue_actions = EmailAction.objects.filter(complete = False).filter(due__lte = datetime.now())
+  data["overdue_actions"] = overdue_actions
+  
+  action_count = EmailAction.objects.filter(complete = False).count()
+  data["action_count"] = action_count
+  
   add_main_menu(data)
-  return render_to_response("reportParticipant.html", data)
+  return render_to_response("report.html", data)
   
 def mailinglist_list(request):
     lists = _paginate(request, Maillist.objects.all())
@@ -389,5 +398,5 @@ def add_main_menu(data):
                     {"text": "Mail Lists", "href":  "/analysis/mailinglist/list"},
                     {"text": "List participants", "href":  "/analysis/participant/list"},
                     {"text": "Import archives", "href":  "/analysis/configureImport"},
-                    {"text": "Report", "href":  "/analysis/report/participant"},]
+                    {"text": "Report", "href":  "/analysis/report"},]
     return data

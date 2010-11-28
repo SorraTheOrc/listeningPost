@@ -1,0 +1,33 @@
+{% extends "page.tmpl.html" %}
+
+{% block title %}Welcome{% endblock %}
+{% block pageTitle %}Listening Post{% endblock %}
+
+{% block content %}
+
+<h2>Participants Report</h2>
+
+<ul>
+  <li>Total participants: {{ total_participants }}</li>
+  <li>New Participants:
+  	{% if new_participants|length == 0 %}
+  	  None
+  	{% else %}
+	    <ol>
+	      {% for participant in new_participants %}
+	      	<li>{{ participant }}</li>
+	      {% endfor %}
+	    </ol>
+	{% endif %}
+  </li>
+  <li>Overdue actions:
+    <ul>
+      {% for action in overdue_actions %}
+      	{{ action }}
+      {% endfor %}
+    </ul>
+  </li>
+  <li>Actions: {{ action_count }}</li>
+</ul>
+
+{% endblock %}

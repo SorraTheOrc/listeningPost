@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from django.db.models.signals import post_save
 from django.db import models
 
@@ -104,4 +105,48 @@ class EmailMessage(models.Model):
 
     class Meta:
         ordering = ('date',)
+                
+class EmailAction(models.Model):
+    """
+    Records an action that needs to be taken on an email object.
+    """
+    id = models.AutoField(primary_key = True)
+    email_message = models.ForeignKey(EmailMessage)
+    type = models.IntegerField()
+    description = models.TextField()
+    complete = models.BooleanField(default = False)
+    due = models.DateField()
 
+    def _get_name(self):
+        if self.type == 1:
+            return "Ensure Reply"
+    name = property(_get_name) 
+    
+    def __unicode__(self):
+        return u"%s on '%s'" % (self.name, self.email_message.subject)
+
+    class Meta:
+        ordering = ('due',)
+    
+def message_saved(sender, instance, created, **kwargs):
+    if created:
+        # if this is in reply to another mail we already have, flag other mail as replied to
+        if instance.backlink is not None:
+            try:
+              repliedTo = EmailMessage.objects.filter(messageID = instance.backlink)[0]
+              action = EmailAction.objects.filter(email_message = repliedTo)[0]
+              action.complete = True
+              action.save()
+            except:
+              pass
+                
+        # if this mail doesn't already have a reply then set an action to check for one
+        try:
+            replies = EmailMessage.objects.filter(backlink = instance.messageID).count()
+            if replies == 0:
+                due = datetime.now() + timedelta(3)
+                EmailAction(email_message = instance, type = 1, due = due, description = "Ensure response given").save()
+        except:
+              pass
+                
+post_save.connect(message_saved, sender=EmailMessage)
