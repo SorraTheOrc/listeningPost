@@ -20,7 +20,7 @@
 	    </ol>
 	{% endif %}
   </li>
-  <li>Overdue actions:
+  <li>Overdue actions: {{ overdue_actions|length }}
     <ul>
       {% for action in overdue_actions %}
       	{{ action }}
