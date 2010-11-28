@@ -11,7 +11,7 @@ from django.template import RequestContext
 import os, email.Utils, glob, gzip, mailbox, operator, re, string, time
 
 
-def _get_social_graph(emails, decay = 5, maxage = 2000, depth = 2):
+def _get_social_graph(emails, participant, decay = 5, maxage = 2000, depth = 2):
     """
     Given a set of emails from a participant calculate the social graph contained within them.
     An email that is a reply to another implies a relationship between the two aprticipants.
@@ -23,7 +23,7 @@ def _get_social_graph(emails, decay = 5, maxage = 2000, depth = 2):
     friends = {}
     earliest_date = datetime.now() - timedelta(maxage)
     for email in emails:
-        if email.backlink is not None:
+        if email.backlink is not None and not email.fromParticipant == participant:
             replyTo = EmailMessage.objects.filter(messageID=email.backlink).filter(date__gte=earliest_date)
             if len(replyTo) == 1:
                 repliedParticipant = replyTo[0].fromParticipant
@@ -40,13 +40,14 @@ def _get_social_graph(emails, decay = 5, maxage = 2000, depth = 2):
             
         replies = EmailMessage.objects.filter(backlink=email.messageID).filter(date__gte=earliest_date)
         for reply in replies:
-            friend = reply.fromParticipant
-            try:
-                strength = friends[str(friend.emailAddr)]
-            except:
-                strength = 0
-            daysOld = (datetime.now() - reply.date).days
-            friends[str(friend.emailAddr)] = strength + ((maxage - daysOld) / decay)
+            if not reply.fromParticipant == participant:
+                friend = reply.fromParticipant
+                try:
+                    strength = friends[str(friend.emailAddr)]
+                except:
+                    strength = 0
+                daysOld = (datetime.now() - reply.date).days
+                friends[str(friend.emailAddr)] = strength + ((maxage - daysOld) / decay)
             
     friends = sorted(friends.iteritems(), key=operator.itemgetter(1))
     friends.reverse()
@@ -134,7 +135,7 @@ def participant_social(request, participant_id):
 
   emails = EmailMessage.objects.filter(fromParticipant = participant)
 
-  friends = _get_social_graph(emails)
+  friends = _get_social_graph(emails, participant)
 
   # Create DOT file
   dot = ""
