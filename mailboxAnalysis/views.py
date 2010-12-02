@@ -140,7 +140,7 @@ def report(request):
   
 def list_tickets(request):
     data = {}
-    data["tickets"] = _paginate(request, Ticket.objects.filter(status = Ticket.OPEN_STATUS).order_by('-modified'))
+    data["tickets"] = _paginate(request, Ticket.objects.filter(status = Ticket.OPEN_STATUS))
     add_main_menu(data)
     return render_to_response("listTickets.html", data)
   
