@@ -106,7 +106,7 @@ class EmailMessage(models.Model):
         return u"'%s' on '%s' from %s" % (self.subject, self.list.name, self.fromParticipant.emailAddr)
 
     class Meta:
-        ordering = ('date',)
+        ordering = ('-date',)
                 
 def message_saved(sender, instance, created, **kwargs):
     print "message saved"
