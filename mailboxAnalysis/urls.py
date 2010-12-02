@@ -15,6 +15,6 @@ urlpatterns = patterns('mailboxAnalysis.views',
     
     (r'^mailinglist/list$', 'mailinglist_list'),
 
-    (r'^mail/(?P<email_id>\d+)/read/$', 'email_detail'),
+    url(r'^mail/(?P<email_id>\d+)/read/$', 'email_detail', name='view_email'),
     (r'^mail/inbox/$', 'email_inbox'),
 )

@@ -20,9 +20,8 @@
       <td><a href="/analysis/mail/{{ email.id }}/read" alt="Read the email with subject '{{ email.subject }}'" title="Read email">{{ email.subject }}</a></td>
       <td>
 	{% if email.backlink %}
-
-	  {{ email.backlink }}
-        {% else %}
+	  <a href="{% url view_email email_id=email.id %}">{{ email.subject }}</a>
+    {% else %}
           &nbsp;
 	{% endif %}
       </td>
