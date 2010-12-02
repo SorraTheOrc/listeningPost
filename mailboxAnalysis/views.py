@@ -1,5 +1,4 @@
 from mailboxAnalysis.models import Archive
-from mailboxAnalysis.models import EmailAction
 from mailboxAnalysis.models import EmailMessage
 from mailboxAnalysis.models import Maillist
 from mailboxAnalysis.models import Participant
@@ -10,6 +9,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from helpdesk.models import Queue, Ticket
 import os, email.Utils, glob, gzip, mailbox, operator, re, string, time
 
 
@@ -129,11 +129,10 @@ def report(request):
             new_participants.append(participant)
   data["new_participants"] = new_participants
   
-  overdue_actions = EmailAction.objects.filter(complete = False).filter(due__lte = datetime.now())
-  data["overdue_actions"] = overdue_actions
+  reply_queue = Queue.objects.get(pk=1)
+  data["reply_actions"] = Ticket.objects.filter(queue = reply_queue).filter(status = Ticket.OPEN_STATUS)
   
-  action_count = EmailAction.objects.filter(complete = False).count()
-  data["action_count"] = action_count
+  data["other_open_actions"] = Ticket.objects.exclude(queue = reply_queue).filter(status = Ticket.OPEN_STATUS)
   
   add_main_menu(data)
   return render_to_response("report.html", data)
@@ -191,8 +190,7 @@ def participant_social(request, participant_id):
           label = friend
         dot += '"' + str(participant) + '" -- "' + friend + '" [len = ' + str(2 + (Decimal(min_weight - strength) / Decimal(max_weight))) + '];\n'
         dot += '"' + friend + '" [color=black, fontcolor=black, label="' + label  + '"];\n'
-        print (strength - min_weight)/max_weight
-    
+        
         dot += '\n'
       dot += "\n}"
 

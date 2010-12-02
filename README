@@ -1,18 +1,43 @@
 ListeningPost
 =============
 
-This is an application that analysis community interactions in order to help understnad the social dynamics found within it.
+This is an application that analysis community interactions in order to help 
+understnad the social dynamics found within it.
 
 Status
 ======
 
-This is an early stage project, and is largely a weekend hack, although I do use it myself so hopefully I'll conitnue to find it useful and continue to enhance it. I encourage you to contribute your own ideas and code.
+This is an early stage project, and is largely a weekend hack, although I do 
+use it myself so hopefully I'll continue to find it useful and continue to 
+enhance it. I encourage you to contribute your own ideas and code.
 
-There are lots of things to do ranging from making the ugly interface better through to adding additional analysis.
+There are lots of things to do ranging from making the ugly interface better 
+through to adding additional analysis.
 
 Features
 --------
 
  * Import a mailbox archive
  * Build a social graph from those archives
+ * Automatically create a ticket, upon email import, to ensure emails are 
+   responded to in an appropriate time
 
+Installation
+============
+
+Jutda Helpdesk
+--------------
+
+This project depends on Jutda Helpdesk, which is used to manage tickets in the 
+community. At present this needs to be installed independently, as described in
+http://www.jutdahelpdesk.com/documentation/installation/
+
+It is necessary to patch the helpdesk to allow resources to be recorded against
+tickets. See http://code.google.com/p/jutda-helpdesk/issues/detail?id=155
+
+django-tagging
+--------------
+
+OPTIONAL: install django-tagging to allow items to be tagged consistently.
+
+'easy_install' djagno-tagging 

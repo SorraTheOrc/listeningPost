@@ -20,14 +20,20 @@
 	    </ol>
 	{% endif %}
   </li>
-  <li>Overdue actions: {{ overdue_actions|length }}
-    <ul>
-      {% for action in overdue_actions %}
-      	{{ action }}
+  <li>Open Reply Actions {{ reply_actions|length }}
+    <ol>
+      {% for action in reply_actions %}
+      	<li>{{ action }}</li>
       {% endfor %}
-    </ul>
+    </ol>
   </li>
-  <li>Actions: {{ action_count }}</li>
+  <li>Open Actions {{ other_open_actions|length }}
+    <ol>
+      {% for action in other_open_actions %}
+      	<li>{{ action }}</li>
+      {% endfor %}
+    </ol>
+  </li>
 </ul>
 
 {% endblock %}
