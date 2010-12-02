@@ -119,6 +119,7 @@ def report(request):
   earliest_date = datetime.now() - timedelta(30)
   data = {}
   data["total_participants"] = Participant.objects.count()
+  data["total_emails"] = EmailMessage.objects.all().count()
   
   new_participants = []
   participants = Participant.objects.all().distinct()
