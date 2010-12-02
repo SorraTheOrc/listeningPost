@@ -3,8 +3,8 @@
     "model": "helpdesk.queue",
     "pk": 1,
     "fields": {
-      "title": "Reply verificatoin",
-      "slug": "ReplyNeeded"
+      "title": "Reply Needed",
+      "slug": "reply"
     }
   }
 ]
