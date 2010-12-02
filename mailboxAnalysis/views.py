@@ -137,6 +137,12 @@ def report(request):
   add_main_menu(data)
   return render_to_response("report.html", data)
   
+def list_tickets(request):
+    data = {}
+    data["tickets"] = _paginate(request, Ticket.objects.filter(status = Ticket.OPEN_STATUS).order_by('-modified'))
+    add_main_menu(data)
+    return render_to_response("listTickets.html", data)
+  
 def mailinglist_list(request):
     lists = _paginate(request, Maillist.objects.all())
     data = {}
@@ -396,5 +402,6 @@ def add_main_menu(data):
                     {"text": "Mail Lists", "href":  "/analysis/mailinglist/list"},
                     {"text": "List participants", "href":  "/analysis/participant/list"},
                     {"text": "Import archives", "href":  "/analysis/configureImport"},
+                    {"text": "Actions", "href":  "/analysis/ticket/list"},
                     {"text": "Report", "href":  "/analysis/report"},]
     return data

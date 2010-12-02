@@ -1,0 +1,45 @@
+{% extends "page.tmpl.html" %}
+
+{% block title %}All Tickets{% endblock %}
+{% block pageTitle %}Tickets{% endblock %}
+
+{% block content %}
+
+<table>
+  <tr>
+    <th>Ticket</th>
+    <th>Email</th>
+    <th>Modified</th>
+  </td>
+
+  {% for ticket in tickets.object_list %}
+    <tr>
+      <td>{{ ticket.title }}</td>
+      <td>
+      {% for email in ticket.reply_to.all %} 
+      	<a href="{% url view_email email_id=email.id %}">View</a><br/>
+      </td>
+      {% endfor %}
+      <td>{{ ticket.modified }}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if tickets.has_previous %}
+            <a href="?page={{ tickets.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ tickets.number }} of {{ tickets.paginator.num_pages }}.
+        </span>
+
+        {% if tickets.has_next %}
+            <a href="?page={{ tickets.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+
+
+{% endblock %}
