@@ -220,6 +220,17 @@ def email_inbox(request):
   add_main_menu(data)
   return render_to_response("listEmails.html", data)
 
+def ticket_mark_complete(request, ticket_id):
+  action = get_object_or_404(Ticket, pk=ticket_id)
+  action.status = Ticket.RESOLVED_STATUS
+  action.save()
+  
+  data = {}
+  data["tickets"] = _paginate(request, Ticket.objects.filter(status = Ticket.OPEN_STATUS))
+  add_main_menu(data)
+  
+  return render_to_response("listTickets.html", data)
+
 def participant_social(request, participant_id):
   """
   Calculate and display the social graph for a given participant.

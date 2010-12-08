@@ -59,7 +59,7 @@ class EmailMessage(models.Model):
     list = models.ForeignKey(Maillist)
     subject = models.CharField(max_length=150)
     body = models.TextField()
-    action = models.ManyToManyField(Ticket, related_name="reply_to")
+    action = models.ManyToManyField(Ticket, related_name="actions")
 
     def _get_word_dictionary(self):
         """
