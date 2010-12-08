@@ -4,6 +4,7 @@ from mailboxAnalysis.models import Maillist
 from mailboxAnalysis.models import Participant
 from datetime import datetime, timedelta
 from decimal import *
+from django.conf import settings
 from django.core.context_processors import csrf
 from django.core.mail import send_mail
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -11,9 +12,7 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from helpdesk.models import Queue, Ticket
-import os, email.Utils, glob, gzip, mailbox, operator, re, string, time
-
-
+import os, email.Utils, glob, gzip, mailbox, poplib, operator, re, string, time
 
 def _paginate(request, object_list):
     paginator = Paginator(object_list, 15)
@@ -214,6 +213,39 @@ def email_send(request):
   add_main_menu(data)
   
   return render_to_response("listTickets.html", data)
+  
+def email_retrieve(request):
+    """
+    Grab all email for the user and import it into the database.
+    Currently we only handle pop3 accounts and emails will be deleted
+    from the POP3 account.
+    """
+    server = poplib.POP3_SSL(settings.SUBSCRIPTION_POP3_SERVER, 995)
+    server.getwelcome()
+    server.user(settings.SUBSCRIPTION_POP3_USER)
+    server.pass_(settings.SUBSCRIPTION_POP3_PASSWORD)
+
+    messagesInfo = server.list()[1]
+
+    for msg in messagesInfo:
+        msgNum = msg.split(" ")[0]
+        msgSize = msg.split(" ")[1]
+        full_message = "\n".join(server.retr(msgNum)[1])
+
+        msg = email.message_from_string(full_message)
+
+        record_email(msg)
+        
+        server.dele(msgNum)
+    server.quit()
+    
+    email_list = EmailMessage.objects.all()
+    emails = _paginate(request, email_list)
+  
+    data = {}
+    data["emails"] = emails 
+    add_main_menu(data)
+    return render_to_response("listEmails.html", data)
 
 def email_inbox(request):
   email_list = EmailMessage.objects.all()
@@ -309,7 +341,7 @@ def start_import(request):
                                 {'error_message': input + " exits but is not a directory"},
                                 context_instance=RequestContext(request))
   
-  results = crawl(input, list_name)
+  results = crawl(input)
   results["list"] = list_name
   emails_after = EmailMessage.objects.count()
   results["total_emails"] = emails_after
@@ -328,7 +360,7 @@ def msgfactory(file):
         return ''
 
 
-def crawl(input, list_name):
+def crawl(input):
   """
   Crawl a directory that should contain mail archives and process any archives found
   that have not yet been processed.
@@ -339,7 +371,7 @@ def crawl(input, list_name):
   files = glob.glob(input + "/*")
   files.sort()
   for f in files:
-      results = process(f, list_name)
+      results = process(f)
   return results
     
 msgid_pattern = re.compile(r'<(.*?)>\s*',re.S)
@@ -370,7 +402,7 @@ def get_backlink(mail):
         return None
     
 
-def process(file, list_name):
+def process(file):
   """
   Process a single archive file. The archive may, or may not be a gzipped file.
   """
@@ -390,77 +422,93 @@ def process(file, list_name):
   new = 0
 
   for mail in mbox:
-      body = ""
-      date = None
-      address = None
-      pgp = None
-      msgId = None
-      backlink = None
-      
       if (mail != ''):
-            processed += 1
-            date_header = mail.get('Date')
-            if (date_header): 
-                EpochSeconds = time.mktime(email.Utils.parsedate(date_header))
-                date = datetime.fromtimestamp(EpochSeconds)
-                
-            subject = mail.get('Subject', "Blank subject")
-            if mail.is_multipart():
-                for part in mail.walk():
-                    type =  part.get_content_type()
-                    if type == 'application/pgp-signature':
-                        pgp = part.get_payload(decode=False)
-                    elif type == "text/plain":
-                        body += part.get_payload(decode=False)
-            else:
-                body =  mail.get_payload(decode=False)
-            
-            raw = mail.as_string()
-                
-            msgID_header = mail.get('Message-Id')
-            if (msgID_header): 
-                msgID = email.Utils.unquote(msgID_header)
-                
-            backlink_header = get_backlink(mail)
-            if (backlink_header): 
-                backlink = string.replace(email.Utils.unquote(backlink_header),"\n","")
-            else:
-                no_backlink += 1
-
-            address_header = mail.get('From')
-            if (address_header): 
-                address = email.Utils.parseaddr(address_header)[1].lower()
-                try:
-                  participant = Participant.objects.get(emailAddr = address)
-                except Participant.DoesNotExist:
-                  participant = Participant(emailAddr = address, pgp = pgp)
-                  participant.save()
-          
-            list = Maillist(list_name)
-            list.save()
-
-            values = {'date': date, 
-                      'fromParticipant': participant,
-                      'backlink': backlink, 
-                      'list': list, 
-                      'subject': unicode(subject, errors='ignore'), 
-                      'body': unicode(body, errors='ignore')}
-            mail, created = EmailMessage.objects.get_or_create(messageID = msgID, defaults = values)
-            if created:
+          processed += 1
+          created, values = record_email(mail)
+          if not values["backlink"]: 
+              no_backlink += 1
+          if created:
               new += 1
-            else:
+          else:
               duplicate += 1
-            print "Processed mail from " + mail.fromParticipant.emailAddr + " on", mail.date
       else:
           invalid += 1
           print "Invalid mail"
-
+      
   archive = Archive(file, list)
   archive.save()
 
   return {"processed": processed, "created": new, "duplicate": duplicate, 
           "invalid": invalid, "with_backlink": processed - no_backlink, 
           "no_backlink": no_backlink}
+  
+def record_email(mail):
+    """
+    Record a single email in the database.
+    
+    Returns a a boolean indicating if a new email were created and a
+    dictionary of all the values relating to this email.
+    """
+    body = ""
+    date = None
+    address = None
+    pgp = None
+    msgId = None
+    backlink = None
+  
+    date_header = mail.get('Date')
+    if (date_header): 
+        EpochSeconds = time.mktime(email.Utils.parsedate(date_header))
+        date = datetime.fromtimestamp(EpochSeconds)
+        
+    subject = mail.get('Subject', "Blank subject")
+    if mail.is_multipart():
+        for part in mail.walk():
+            type =  part.get_content_type()
+            if type == 'application/pgp-signature':
+                pgp = part.get_payload(decode=False)
+            elif type == "text/plain":
+                body += part.get_payload(decode=False)
+    else:
+        body =  mail.get_payload(decode=False)
+    
+    raw = mail.as_string()
+        
+    msgID_header = mail.get('Message-Id')
+    if (msgID_header): 
+        msgID = email.Utils.unquote(msgID_header)
+        
+    backlink_header = get_backlink(mail)
+    if (backlink_header): 
+        backlink = string.replace(email.Utils.unquote(backlink_header),"\n","")
+    
+    address_header = mail.get('From')
+    if (address_header): 
+        address = email.Utils.parseaddr(address_header)[1].lower()
+        try:
+          participant = Participant.objects.get(emailAddr = address)
+        except Participant.DoesNotExist:
+          participant = Participant(emailAddr = address, pgp = pgp)
+          participant.save()
+  
+    list_header = mail.get('list-id')
+    if list_header:
+        list_name = list_header
+    else:
+        list_name = mail.get("To") 
+    list = Maillist(list_name)
+    list.save()
+
+    values = {'date': date, 
+              'fromParticipant': participant,
+              'backlink': backlink, 
+              'list': list, 
+              'subject': unicode(subject, errors='ignore'), 
+              'body': unicode(body, errors='ignore')}
+    mail, created = EmailMessage.objects.get_or_create(messageID = msgID, defaults = values)
+    print "Processed mail from " + mail.fromParticipant.emailAddr + " on", mail.date
+
+    return created, values
 
 def add_main_menu(data):
     """
@@ -472,5 +520,6 @@ def add_main_menu(data):
                     {"text": "List participants", "href":  "/analysis/participant/list"},
                     {"text": "Import archives", "href":  "/analysis/configureImport"},
                     {"text": "Actions", "href":  "/analysis/ticket/list"},
+                    {"text": "Retrieve", "href":  "/analysis/mail/retrieve"},
                     {"text": "Report", "href":  "/analysis/report"},]
     return data
