@@ -208,8 +208,12 @@ def email_send(request):
   for action in actions:
       action.status = Ticket.RESOLVED_STATUS
       action.save()
-    
-  return render_to_response("listEmails.html")
+
+  data = {}
+  data["tickets"] = _paginate(request, Ticket.objects.filter(status = Ticket.OPEN_STATUS))
+  add_main_menu(data)
+  
+  return render_to_response("listTickets.html", data)
 
 def email_inbox(request):
   email_list = EmailMessage.objects.all()
