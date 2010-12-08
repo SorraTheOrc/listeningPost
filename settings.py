@@ -97,3 +97,31 @@ INSTALLED_APPS = (
     'mailboxAnalysis',
     'tagging',
 )
+
+try:
+  import local_settings
+except ImportError:
+  print """ 
+    -------------------------------------------------------------------------
+    No local_settings.py file found, proceeding with default settings.
+    
+    Settings starting with A-Z will be imported, replacing default settings.
+    Settings starting with EXTRAS_ will be appended to default settings.
+    -------------------------------------------------------------------------
+    """
+else:
+  # Import any symbols that begin with A-Z. Append to lists any symbols that
+  # begin with "EXTRA_".
+  import re
+  for attr in dir(local_settings):
+    match = re.search('^EXTRA_(\w+)', attr)
+    if match:
+      name = match.group(1)
+      value = getattr(local_settings, attr)
+      try:
+        globals()[name] += value
+      except KeyError:
+        globals()[name] = value
+    elif re.search('^[A-Z]', attr):
+      globals()[attr] = getattr(local_settings, attr)
+

@@ -1,0 +1,16 @@
+{% extends "page.tmpl.html" %}
+
+{% block title %}{{ email.subject }}{% endblock %}
+{% block pageTitle %}{{ email.subject }}{% endblock %}
+
+{% block content %}
+
+<form action="{% url send_email %}" method="post">
+    {% csrf_token %}
+    <input name="reply_to_id" type="hidden" value="{{ reply_to_id }}"/>
+    <label for="to">To:</label><input id="to" name="to" value="{{ to }}"/><br/>
+    <label for="subject">Subject:</label><input id="subject" name="subject" size="62" value="{{ subject }}"/><br/>
+	<textarea name="body" cols="82" rows="15">{{ body }}</textarea><br/>
+    <input type="submit" value="Send"/>
+</form>
+{% endblock %}

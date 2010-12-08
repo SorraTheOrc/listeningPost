@@ -11,9 +11,10 @@
 *#
 .#*
 
-# Logs and Databases #
-######################
+# Application files #
+#####################
 
+local_settings.py
 *.log
 *.sqlite
 

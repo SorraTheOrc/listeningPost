@@ -17,4 +17,7 @@
   </li>
 </ul>
 <pre>{{ email.body }}</pre>
+
+<a href="{% url reply_email email_id=email.id %}">Reply</a>
+
 {% endblock %}

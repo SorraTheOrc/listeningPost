@@ -5,6 +5,7 @@ from mailboxAnalysis.models import Participant
 from datetime import datetime, timedelta
 from decimal import *
 from django.core.context_processors import csrf
+from django.core.mail import send_mail
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
@@ -157,6 +158,58 @@ def email_detail(request, email_id):
   data["email"] = email
   add_main_menu(data)
   return render_to_response("detailEmail.html", data)
+  
+def email_reply(request, email_id):
+  email = get_object_or_404(EmailMessage, pk = email_id)
+  data = {}
+  data.update(csrf(request))
+  data["to"] = email.fromParticipant.emailAddr
+  data["reply_to_id"] = email.id
+  
+  subject = email.subject
+  if not subject.startswith('Re:'):
+    subject = "Re: " + subject
+  data["subject"] = subject
+  
+  body = "On "
+  body += email.date.strftime("%d/%m/%y")
+  body += " "
+  body += email.fromParticipant.emailAddr
+  body += " said:\n"  
+  
+  for line in email.body.splitlines():
+    if line.startswith('>'):
+        body += ">" + line + "\n"
+    else:
+        body += "> " + line + "\n"
+  data["body"] = body
+  add_main_menu(data)
+  return render_to_response("replyEmail.html", data)
+  
+def email_send(request):
+  """
+  Send an email. The post request should contain the necessary data for
+  sending the mail as follows:
+  subject: the subject of the email
+  body: the body of the email
+  to: the to address
+  """
+  body = request.POST['body']
+  to = request.POST['to']
+  subject = request.POST['subject']
+  reply_to_id = request.POST['reply_to_id']
+    
+  send_mail(subject, body, 'from@example.com',
+    [to], fail_silently = False)
+
+  queue = Queue.objects.get(pk=1)
+  repliedTo = EmailMessage.objects.filter(id = reply_to_id)[0]
+  actions = repliedTo.action.filter(queue=queue)
+  for action in actions:
+      action.status = Ticket.RESOLVED_STATUS
+      action.save()
+    
+  return render_to_response("listEmails.html")
 
 def email_inbox(request):
   email_list = EmailMessage.objects.all()
@@ -218,7 +271,7 @@ def configure_import(request):
   return render_to_response('configureImport.html', 
                             data,
                             context_instance = RequestContext(request))
-
+  
 def start_import(request):
   """
   Start a request from a POST. The request variable 'list' should contain
