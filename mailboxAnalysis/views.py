@@ -256,9 +256,9 @@ def email_retrieve(request):
     emails = _paginate(request, email_list)
   
     data = {}
-    data["emails"] = emails 
+    data["tickets"] = _paginate(request, Ticket.objects.filter(status = Ticket.OPEN_STATUS))
     add_main_menu(data)
-    return render_to_response("listEmails.html", data)
+    return render_to_response("listTickets.html", data)
 
 def email_inbox(request):
   email_list = Message.objects.all()
