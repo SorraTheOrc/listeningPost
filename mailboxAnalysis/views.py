@@ -270,7 +270,8 @@ def email_inbox(request):
   return render_to_response("listEmails.html", data)
 
 def ticket_mark_complete(request, ticket_id):
-  resolution = "Marked complete by " + request.user
+  resolution = "Marked complete by " + request.user.username
+  action = Ticket.objects.get(pk=ticket_id)
   follow_up = FollowUp (
                         ticket=action,
                         date=datetime.now(),
