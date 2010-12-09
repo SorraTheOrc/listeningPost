@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from django.db.models.signals import post_save
 from django.db import models
-from helpdesk.models import Queue, Ticket
+from helpdesk.models import FollowUp, Queue, Ticket
 
 import re
 
@@ -9,7 +9,7 @@ class Maillist(models.Model):
     name = models.CharField(max_length = 35, primary_key=True)
     
     def _get_email_count(self):
-        return EmailMessage.objects.filter(list = self).count()
+        return Message.objects.filter(list = self).count()
     email_count = property(_get_email_count)
     
     def __unicode__(self):
@@ -31,11 +31,11 @@ class Participant(models.Model):
         self.email_count += 1
 
     def _getEmailCount(self):
-        return EmailMessage.objects.filter(fromParticipant = self).count()
+        return Message.objects.filter(fromParticipant = self).count()
     email_count = property(_getEmailCount)
 
     def _getReplyToOthersCount(self):
-        return EmailMessage.objects.filter(fromParticipant = self).exclude(backlink = None).count()
+        return Message.objects.filter(fromParticipant = self).exclude(backlink = None).count()
     reply_to_count = property(_getReplyToOthersCount)
 
     def _get_label(self):
@@ -50,7 +50,7 @@ class Participant(models.Model):
     def __unicode__(self):
         return u"%s" % (self.emailAddr)
 
-class EmailMessage(models.Model):
+class Message(models.Model):
     id = models.AutoField(primary_key = True)
     messageID = models.CharField(max_length=200, unique = True)
     date = models.DateTimeField()
@@ -101,7 +101,28 @@ class EmailMessage(models.Model):
         freq_list = freq_dict.items()
         return sorted(freq_list, key = lambda word: -word[1])
     word_count = property(_get_word_count)
-
+    
+    def record_reply_received(self, email):
+        """
+        Record a reply to this mail as a FollowUp to the Reply
+        action.
+        """
+        queue = Queue.objects.get(pk=1)
+        actions = self.action.filter(queue=queue)
+        resolution = 'Reply received from %s on %s' % (email.fromParticipant, email.date)
+        for action in actions:
+            follow_up = FollowUp (
+                                  ticket=action,
+                                  date=datetime.now(),
+                                  comment=resolution,
+                                  title="Reply received",
+                                  public=True)
+            follow_up.save()
+            
+            action.status = Ticket.CLOSED_STATUS
+            action.resolution = follow_up.comment
+            action.save()
+       
     def __unicode__(self):
         return u"'%s' on '%s' from %s" % (self.subject, self.list.name, self.fromParticipant.emailAddr)
 
@@ -115,17 +136,14 @@ def message_saved(sender, instance, created, **kwargs):
           
         # if this is in reply to another mail we already have, flag other mail as replied to
         if instance.backlink is not None:
-            if EmailMessage.objects.filter(messageID = instance.backlink).count() > 0:
-                repliedTo = EmailMessage.objects.filter(messageID = instance.backlink)[0]
-                actions = repliedTo.action.filter(queue=queue)
-                for action in actions:
-                    action.status = Ticket.RESOLVED_STATUS
-                    action.save()
+            if Message.objects.filter(messageID = instance.backlink).count() > 0:
+                repliedTo = Message.objects.filter(messageID = instance.backlink)[0]
+                repliedTo.record_reply(instance)
                 
         # if this mail doesn't already have a reply then set an action to check for one
         id = instance.messageID
-        emails = EmailMessage.objects.all()
-        replies = EmailMessage.objects.filter(backlink = id).count()
+        emails = Message.objects.all()
+        replies = Message.objects.filter(backlink = id).count()
         if replies == 0:
             description = "Check that the email has received a reply if necessary."
             ticket = Ticket(title = "Reply needed for '" + instance.subject + "'",
@@ -137,4 +155,4 @@ def message_saved(sender, instance, created, **kwargs):
             ticket.save()
             instance.action.add(ticket)
                 
-post_save.connect(message_saved, sender=EmailMessage)
+post_save.connect(message_saved, sender=Message)

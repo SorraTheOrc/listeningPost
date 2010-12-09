@@ -1,17 +1,17 @@
 from mailboxAnalysis.models import Archive
-from mailboxAnalysis.models import EmailMessage
+from mailboxAnalysis.models import Message
 from mailboxAnalysis.models import Maillist
 from mailboxAnalysis.models import Participant
 from datetime import datetime, timedelta
 from decimal import *
 from django.conf import settings
 from django.core.context_processors import csrf
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from helpdesk.models import Queue, Ticket
+from helpdesk.models import FollowUp, Queue, Ticket
 import os, email.Utils, glob, gzip, mailbox, poplib, operator, re, string, time
 
 def _paginate(request, object_list):
@@ -41,7 +41,7 @@ def _get_social_graph(emails, participant, decay = 5, maxage = 2000, depth = 2):
     earliest_date = datetime.now() - timedelta(maxage)
     for email in emails:
         if email.backlink is not None and not email.fromParticipant == participant:
-            replyTo = EmailMessage.objects.filter(messageID=email.backlink).filter(date__gte=earliest_date)
+            replyTo = Message.objects.filter(messageID=email.backlink).filter(date__gte=earliest_date)
             if len(replyTo) == 1:
                 repliedParticipant = replyTo[0].fromParticipant
                 try:
@@ -55,7 +55,7 @@ def _get_social_graph(emails, participant, decay = 5, maxage = 2000, depth = 2):
             elif len(replyTo) > 1:
                 raise NotSupportException("We can't currently handle multiple emails with the same message ID")
             
-        replies = EmailMessage.objects.filter(backlink=email.messageID).filter(date__gte=earliest_date)
+        replies = Message.objects.filter(backlink=email.messageID).filter(date__gte=earliest_date)
         for reply in replies:
             if not reply.fromParticipant == participant:
                 friend = reply.fromParticipant
@@ -75,7 +75,7 @@ data_directory = "archives"
 def index(request):
   data = {}
   data["total_lists"] = Maillist.objects.count()
-  data["total_emails"] = EmailMessage.objects.count()
+  data["total_emails"] = Message.objects.count()
   data["total_participants"] = Participant.objects.count()
   add_main_menu(data)
   return render_to_response('index.html', data)
@@ -91,10 +91,10 @@ def participant_detail(reqeust, participant_id):
   data = {}
   participant = get_object_or_404(Participant, pk=participant_id)
   data["participant"] = participant
-  data['firstEmail'] = EmailMessage.objects.filter(fromParticipant = participant).order_by('date')[0]
-  data['lastEmail'] = EmailMessage.objects.filter(fromParticipant = participant).order_by('-date')[0]
+  data['firstEmail'] = Message.objects.filter(fromParticipant = participant).order_by('date')[0]
+  data['lastEmail'] = Message.objects.filter(fromParticipant = participant).order_by('-date')[0]
   
-  emails = EmailMessage.objects.filter(fromParticipant = participant)
+  emails = Message.objects.filter(fromParticipant = participant)
   dictionary = {} 
   for email in emails:
     words = email.dictionary
@@ -109,7 +109,7 @@ def participant_detail(reqeust, participant_id):
   return render_to_response("detailParticipant.html", data)
 
 def participant_emails(request, participant_id):
-  emails = _paginate(request, EmailMessage.objects.filter(fromParticipant = participant_id))
+  emails = _paginate(request, Message.objects.filter(fromParticipant = participant_id))
   data = {}
   data["emails"] = emails
   add_main_menu(data)
@@ -119,12 +119,12 @@ def report(request):
   earliest_date = datetime.now() - timedelta(30)
   data = {}
   data["total_participants"] = Participant.objects.count()
-  data["total_emails"] = EmailMessage.objects.all().count()
+  data["total_emails"] = Message.objects.all().count()
   
   new_participants = []
   participants = Participant.objects.all().distinct()
   for participant in participants:
-    emails = EmailMessage.objects.filter(fromParticipant = participant).order_by("date")[0:1]
+    emails = Message.objects.filter(fromParticipant = participant).order_by("date")[0:1]
     for email in emails:
         if email.date >= earliest_date:
             new_participants.append(participant)
@@ -152,14 +152,14 @@ def mailinglist_list(request):
     return render_to_response("listMailinglist.html", data)
 
 def email_detail(request, email_id):
-  email = get_object_or_404(EmailMessage, pk = email_id)
+  email = get_object_or_404(Message, pk = email_id)
   data = {}
   data["email"] = email
   add_main_menu(data)
   return render_to_response("detailEmail.html", data)
   
 def email_reply(request, email_id):
-  email = get_object_or_404(EmailMessage, pk = email_id)
+  email = get_object_or_404(Message, pk = email_id)
   data = {}
   data.update(csrf(request))
   data["to"] = email.fromParticipant.emailAddr
@@ -197,15 +197,28 @@ def email_send(request):
   to = request.POST['to']
   subject = request.POST['subject']
   reply_to_id = request.POST['reply_to_id']
-    
-  send_mail(subject, body, 'from@example.com',
-    [to], fail_silently = False)
+  message_id = email.utils.make_msgid()
+  
+  mail = EmailMessage(subject, body, 'from@example.com',
+                      [to],
+                      headers = {'Message-ID': message_id, 'In-Reply-To': reply_to_id})
+  mail.send()
 
   queue = Queue.objects.get(pk=1)
-  repliedTo = EmailMessage.objects.filter(id = reply_to_id)[0]
-  actions = repliedTo.action.filter(queue=queue)
+  replyTo = Message.objects.filter(id = reply_to_id)[0]
+  actions = replyTo.action.filter(queue=queue)
+  resolution = 'Reply sent on %s' % (datetime.now())
   for action in actions:
+      follow_up = FollowUp (
+                            ticket=action,
+                            date=datetime.now(),
+                            comment=resolution,
+                            title="Reply sent",
+                            public=False)
+      follow_up.save()
+            
       action.status = Ticket.RESOLVED_STATUS
+      action.resolution = follow_up.comment
       action.save()
 
   data = {}
@@ -239,7 +252,7 @@ def email_retrieve(request):
         server.dele(msgNum)
     server.quit()
     
-    email_list = EmailMessage.objects.all()
+    email_list = Message.objects.all()
     emails = _paginate(request, email_list)
   
     data = {}
@@ -248,7 +261,7 @@ def email_retrieve(request):
     return render_to_response("listEmails.html", data)
 
 def email_inbox(request):
-  email_list = EmailMessage.objects.all()
+  email_list = Message.objects.all()
   emails = _paginate(request, email_list)
   
   data = {}
@@ -257,8 +270,18 @@ def email_inbox(request):
   return render_to_response("listEmails.html", data)
 
 def ticket_mark_complete(request, ticket_id):
+  resolution = "Marked complete by " + request.user
+  follow_up = FollowUp (
+                        ticket=action,
+                        date=datetime.now(),
+                        comment=resolution,
+                        title="Reply Sent",
+                        public=True)
+  follow_up.save()
+  
   action = get_object_or_404(Ticket, pk=ticket_id)
-  action.status = Ticket.RESOLVED_STATUS
+  action.status = Ticket.CLOSED_STATUS
+  action.resolution = follow_up.comment
   action.save()
   
   data = {}
@@ -276,7 +299,7 @@ def participant_social(request, participant_id):
   participant = get_object_or_404(Participant, pk=participant_id)
   data["participant"] = participant
 
-  emails = EmailMessage.objects.filter(fromParticipant = participant)
+  emails = Message.objects.filter(fromParticipant = participant)
 
   friends = _get_social_graph(emails, participant)
 
@@ -343,7 +366,7 @@ def start_import(request):
   
   results = crawl(input)
   results["list"] = list_name
-  emails_after = EmailMessage.objects.count()
+  emails_after = Message.objects.count()
   results["total_emails"] = emails_after
   add_main_menu(results)
 
@@ -505,7 +528,7 @@ def record_email(mail):
               'list': list, 
               'subject': unicode(subject, errors='ignore'), 
               'body': unicode(body, errors='ignore')}
-    mail, created = EmailMessage.objects.get_or_create(messageID = msgID, defaults = values)
+    mail, created = Message.objects.get_or_create(messageID = msgID, defaults = values)
     print "Processed mail from " + mail.fromParticipant.emailAddr + " on", mail.date
 
     return created, values
