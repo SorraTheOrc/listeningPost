@@ -493,6 +493,7 @@ def record_email(mail):
                 pgp = part.get_payload(decode=False)
             elif type == "text/plain":
                 body += part.get_payload(decode=False)
+                body = textwrap.fill(body, 63)
     else:
         body =  mail.get_payload(decode=False)
     
