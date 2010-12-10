@@ -5,27 +5,24 @@
 
 {% block content %}
 
-<table>
-  <tr>
-    <th>Ticket</th>
-    <th>Email</th>
-    <th>Modified</th>
-    <th>Action</th>
-  </td>
-
-  {% for ticket in tickets.object_list %}
-    <tr>
-      <td>{{ ticket.title }}</td>
-      <td>
-      {% for email in ticket.actions.all %}
-      	<a href="{% url view_email email_id=email.id %}">View</a><br/>
-      </td>
-      {% endfor %}
-      <td>{{ ticket.modified }}</td>
-      <td><a href="{% url mark_ticket_complete ticket_id=ticket.id %}">Complete</a></a></td>
-    </tr>
-  {% endfor %}
-</table>
+{% for ticket in tickets.object_list %}
+  <div class="ticket">
+    <p>
+      <span class="title">{{ ticket.title }}</span>
+      <span class="date">{{ ticket.modified }}</span><br/>
+      <span class="action"><a href="{% url mark_ticket_complete ticket_id=ticket.id %}">Complete</a></span><br/>
+    </p>
+	<div class="emails">
+	    {% for email in ticket.actions.all %}
+	      <div class="email">
+	        <span class="subject"><a href="{% url view_email email_id=email.id %}">{{ email.subject }}</a></span><br/>
+	        from <span class="from">{{ email.fromParticipant }}</span><br/>
+	        <span class="body" style="word-wrap: break-word"><pre>{{ email.body }}</pre></span><br/>
+	      </div>
+	    {% endfor %}
+	</div>
+  </div>
+{% endfor %}
 
 <div class="pagination">
     <span class="step-links">
