@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from django.db.models.signals import post_save
 from django.db import models
+from django.utils.translation import ugettext_lazy as _, ugettext
 from helpdesk.models import FollowUp, Queue, Ticket
 
 import re
@@ -21,6 +22,51 @@ class Archive(models.Model):
 
     def __unicode__(self):
         return u"%s" % (self.filename)
+
+class ActionPattern(models.Model):
+    """
+    An Action Pattern provides a pattern for a Message. When a Message
+    is retrieved with this pattern an given action is created for the
+    Message/
+    """
+    subject_pattern = models.CharField(_('Subject pattern'),
+                                       max_length=120,
+                                       blank = True,
+                                       help_text = _('A regular expression to match the subject of a message'),
+                                       )
+    from_pattern = models.CharField(_('From pattern'),
+                                    max_length=120,
+                                    blank = True,
+                                    help_text = _('A regular expression to match the from address of a message'),
+                                    )
+    body_pattern = models.CharField(_('Body pattern'),
+                                    max_length=240,
+                                    blank = True,
+                                    help_text = _('A regular expression to match the body of a message'),
+                                    )
+    action_title = models.CharField(_('Action title'),
+                                    max_length=120,
+                                    blank = False,
+                                    help_text = _('The title of the action'),
+                                    )
+    action_description = models.TextField(_('Action description'),
+                                          blank = False,
+                                          help_text = _('The description of the action'),
+                                          ) 
+    action_priority = models.IntegerField(_('Action priority'),
+                                          default = 3,
+                                          help_text = _('Priority of the action to be created.')
+                                          )
+    action_queue = models.ForeignKey('helpdesk.Queue',
+                                    help_text = _('The queue that a task should be applied to'),
+                                    )
+    active = models.BooleanField(
+                                 _('Active'),
+                                 default = True
+                                 )
+
+    def __unicode__(self):
+        return u"%s" % (self.subject_pattern)
 
 class Participant(models.Model):
     id = models.AutoField(primary_key = True)
@@ -129,30 +175,3 @@ class Message(models.Model):
     class Meta:
         ordering = ('-date',)
                 
-def message_saved(sender, instance, created, **kwargs):
-    print "message saved"
-    if created:
-        queue = Queue.objects.get(pk=1)
-          
-        # if this is in reply to another mail we already have, flag other mail as replied to
-        if instance.backlink is not None:
-            if Message.objects.filter(messageID = instance.backlink).count() > 0:
-                repliedTo = Message.objects.filter(messageID = instance.backlink)[0]
-                repliedTo.record_reply(instance)
-                
-        # if this mail doesn't already have a reply then set an action to check for one
-        id = instance.messageID
-        emails = Message.objects.all()
-        replies = Message.objects.filter(backlink = id).count()
-        if replies == 0:
-            description = "Check that the email has received a reply if necessary."
-            ticket = Ticket(title = "Reply needed for '" + instance.subject + "'",
-                            description = description, 
-                            queue = queue,
-                            created = datetime.now(),
-                            status = Ticket.OPEN_STATUS,
-                            priority = 3)
-            ticket.save()
-            instance.action.add(ticket)
-                
-post_save.connect(message_saved, sender=Message)

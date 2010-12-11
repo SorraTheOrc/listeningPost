@@ -6,5 +6,24 @@
       "title": "Reply Needed",
       "slug": "reply"
     }
+  },
+  {
+    "model": "helpdesk.queue",
+    "pk": 2,
+    "fields": {
+      "title": "Vote Needed",
+      "slug": "vote"
+    }
+  },
+  {
+    "model": "mailboxAnalysis.ActionPattern",
+    "pk": 1,
+    "fields": {
+      "subject_pattern": "\\[VOTE\\].*",
+      "action_title": "Cast vote",
+      "action_queue": 2,
+      "action_description": "Your vote is required on an issue",
+      "action_priority": 1
+    }
   }
 ]

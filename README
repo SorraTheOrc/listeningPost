@@ -17,8 +17,10 @@ through to adding additional analysis.
 Features
 --------
 
+ * Retrieve emails from a POP3 account
+ * Automatically assign tasks based on regular expression matches
  * Import a mailbox archive
- * Build a social graph from those archives
+ * Build a social graph from communication archives
  * Automatically create a ticket, upon email import, to ensure emails are 
    responded to in an appropriate time
 
@@ -40,4 +42,15 @@ django-tagging
 
 OPTIONAL: install django-tagging to allow items to be tagged consistently.
 
-'easy_install' djagno-tagging 
+'easy_install' djagno-tagging
+
+Configuration
+-------------
+
+Copy the file 'local_settings_example.py' to 'local_settings.py' and
+edit it as necessary. instructions are provided in the file. 
+
+Usage
+=====
+
+ 
