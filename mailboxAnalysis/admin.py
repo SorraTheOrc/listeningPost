@@ -1,7 +1,6 @@
 from mailboxAnalysis.models import *
 from django.contrib import admin
 
-admin.site.register(ActionPattern)
 admin.site.register(Archive)
 admin.site.register(Message)
 admin.site.register(Maillist)

@@ -17,8 +17,9 @@ through to adding additional analysis.
 Features
 --------
 
+ * Extend message processing with plugins, supplied plugins include:
+   * Automatically assign tasks based on regular expression matches
  * Retrieve emails from a POP3 account
- * Automatically assign tasks based on regular expression matches
  * Import a mailbox archive
  * Build a social graph from communication archives
  * Automatically create a ticket, upon email import, to ensure emails are 
@@ -42,7 +43,7 @@ django-tagging
 
 OPTIONAL: install django-tagging to allow items to be tagged consistently.
 
-'easy_install' djagno-tagging
+'easy_install' django-tagging
 
 Configuration
 -------------
@@ -50,7 +51,37 @@ Configuration
 Copy the file 'local_settings_example.py' to 'local_settings.py' and
 edit it as necessary. instructions are provided in the file. 
 
-Usage
-=====
+Plugins
+=======
 
- 
+Plugins allow new features to be added to the system. At the time of writing there
+is only one type of plugin avialable, but there may be more in the future.
+
+messageProcessingPlugin
+-----------------------
+
+A messageProcessingPlugin is called when a new message is imported.
+
+Enabling a Plugin
+-----------------
+
+To enable a plugin you need to complete two steps.
+
+First add its name to the 'EXTRA_INSTALLED_APPS' property in
+'local_settings.py'
+
+Next you need to create a 'local_plugins.py' file by copying 'plugins.py' and
+edit the 'processPlugins' function accordingly. Usually this will simply be to
+add an import and a 'pluginName.process(mail)' call. 
+
+
+
+Creating Plugins
+----------------
+
+To create a plugin simply create a standard Djang app 
+(using 'python manage.py startapp PLUGINTYPE_PLUGINNAME') and provide a process.py
+file that contains a process function which will be called when the plugin is
+required to do its work.
+
+

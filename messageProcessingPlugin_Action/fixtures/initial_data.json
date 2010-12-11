@@ -1,0 +1,13 @@
+[
+  {
+    "model": "messageProcessingPlugin_Action.ActionPattern",
+    "pk": 1,
+    "fields": {
+      "subject_pattern": "\\[VOTE\\].*",
+      "action_title": "Cast vote",
+      "action_queue": 2,
+      "action_description": "Your vote is required on an issue",
+      "action_priority": 1
+    }
+  }
+]

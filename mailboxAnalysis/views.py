@@ -1,4 +1,3 @@
-from mailboxAnalysis.models import ActionPattern
 from mailboxAnalysis.models import Archive
 from mailboxAnalysis.models import Message
 from mailboxAnalysis.models import Maillist
@@ -14,6 +13,11 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from helpdesk.models import FollowUp, Queue, Ticket
 import os, email.Utils, glob, gzip, mailbox, poplib, operator, re, string, textwrap, time
+
+try:
+  import local_plugins as plugins
+except ImportError:
+  import plugins
 
 def _paginate(request, object_list):
     paginator = Paginator(object_list, 15)
@@ -249,7 +253,7 @@ def email_retrieve(request):
 
         record_email(msg)
         
-        if settings.SUBSCRIPTION.POP3.DELETE:
+        if settings.SUBSCRIPTION_POP3_DELETE:
             server.dele(msgNum)
     server.quit()
     
@@ -469,11 +473,8 @@ def process(file):
   
 def record_email(mail):
     """
-    Record a single email in the database. All Actionpatterns are 
-    processed and, where they match, actions are created. If this
-    message is in reply to another mail any outstanding reply action
-    on that mail is marked as resolved. Finally, if no action has
-    been created for this email then a reply action is created.
+    Record a single email in the database. Included messageProcessingPlugin
+    will be run against the message.
     
     Returns a a boolean indicating if a new email were created and a
     dictionary of all the values relating to this email.
@@ -484,7 +485,7 @@ def record_email(mail):
     pgp = None
     msgId = None
     backlink = None
-  
+    
     date_header = mail.get('Date')
     if (date_header): 
         EpochSeconds = time.mktime(email.Utils.parsedate(date_header))
@@ -538,64 +539,7 @@ def record_email(mail):
     mail, created = Message.objects.get_or_create(messageID = msgID, defaults = values)
     
     if created:
-        action_created = False
-        patterns = ActionPattern.objects.filter(active = True)
-        for pattern in patterns:
-            create_action = True
-            if pattern.subject_pattern:
-                expr = re.compile(pattern.subject_pattern, re.IGNORECASE)
-                if expr.match(mail.subject):
-                    create_action = True
-                else:
-                    create_action = False
-                
-            if create_action and pattern.body_pattern:
-                expr = re.compile(pattern.body_pattern, re.IGNORECASE)
-                if expr.match(mail.body):
-                    create_action = True
-                else:
-                    create_action = False
-            
-            if create_action and pattern.from_pattern:
-                expr = re.compile(pattern.from_pattern, re.IGNORECASE)
-                if expr.match(mail.fromParticipant):
-                    create_action = True
-                else:
-                    create_action = False
-                    
-            if create_action:
-                ticket = Ticket(title = pattern.action_title,
-                                description = pattern.action_description, 
-                                queue = pattern.action_queue,
-                                created = datetime.now(),
-                                status = Ticket.OPEN_STATUS,
-                                priority = pattern.action_priority)
-                ticket.save()
-                mail.action.add(ticket)
-                action_created = True
-        
-        if not action_created:
-            queue = Queue.objects.get(pk=1)
-            # if this is in reply to another mail we already have, flag other mail as replied to
-            if mail.backlink is not None:
-                if Message.objects.filter(messageID = mail.backlink).count() > 0:
-                    repliedTo = Message.objects.filter(messageID = mail.backlink)[0]
-                    repliedTo.record_reply(instance)
-            
-            # if this mail doesn't already have a reply then set an action to check for one
-            id = mail.messageID
-            emails = Message.objects.all()
-            replies = Message.objects.filter(backlink = id).count()
-            if replies == 0:
-                description = "Check that the email has received a reply if necessary."
-                ticket = Ticket(title = "Reply needed for '" + mail.subject + "'",
-                                description = description, 
-                                queue = queue,
-                                created = datetime.now(),
-                                status = Ticket.OPEN_STATUS,
-                                priority = 3)
-                ticket.save()
-                mail.action.add(ticket)
+        plugins.processPlugins(mail)
                     
     return created, values
 
