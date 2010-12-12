@@ -15,7 +15,10 @@ ActionPattern model.
 Examples
 ========
 
-These examples show the ActionPattern record in JSOB format.
+These examples show the ActionPattern record in JSON format.
+
+Naturally you will need to ensure the appropriate queues already exist in the
+database.
 
 Cast Vote
 ---------
@@ -27,12 +30,28 @@ single vote action will be created for each vote thread.
 
   {
     "model": "messageProcessingPlugin_Action.ActionPattern",
-    "pk": 1,
     "fields": {
       "subject_pattern": "\\[VOTE\\].*",
       "action_title": "Cast vote",
       "action_queue": 2,
       "action_description": "Your vote is required on an issue",
+      "action_priority": 1
+    }
+  }
+  
+Keyword Search
+--------------
+
+Search for a keyword in the body of an email and create an action to draw attention
+to the issue.
+
+  {
+    "model": "messageProcessingPlugin_Actiotn.ActionPattern",
+    "fields": {
+      "body_pattern": ".*[\\s\\,\\.]+KEYWORD.*",
+      "action_title": "Action required because contains KEYWORD",
+      "action_queue": 1,
+      "action_description": "This email contains the keyword 'KEYWORD' and is therefore marked for your priority attention.",
       "action_priority": 1
     }
   }

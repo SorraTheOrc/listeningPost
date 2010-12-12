@@ -8,6 +8,7 @@ class ActionPattern(models.Model):
     is retrieved with this pattern an given action is created for the
     Message/
     """
+    id = models.AutoField(primary_key = True)
     subject_pattern = models.CharField(_('Subject pattern'),
                                        max_length=120,
                                        blank = True,

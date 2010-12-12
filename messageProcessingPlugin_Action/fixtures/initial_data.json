@@ -1,5 +1,21 @@
 [
   {
+    "model": "helpdesk.queue",
+    "pk": 1,
+    "fields": {
+      "title": "Reply Needed",
+      "slug": "reply"
+    }
+  },
+  {
+    "model": "helpdesk.queue",
+    "pk": 2,
+    "fields": {
+      "title": "Vote Needed",
+      "slug": "vote"
+    }
+  },
+  {
     "model": "messageProcessingPlugin_Action.ActionPattern",
     "pk": 1,
     "fields": {
@@ -9,5 +25,17 @@
       "action_description": "Your vote is required on an issue",
       "action_priority": 1
     }
+  },
+  {
+    "model": "messageProcessingPlugin_Action.ActionPattern",
+    "pk": 2,
+    "fields": {
+      "body_pattern": ".*[\\s\\,\\.]+(Ross|Gardler).*",
+      "action_title": "Action required because contains your name",
+      "action_queue": 1,
+      "action_description": "This email contains your name and is therefore marked for your priority attention.",
+      "action_priority": 1
+    }
   }
+  
 ]
