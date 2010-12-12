@@ -262,7 +262,7 @@ def email_retrieve(request):
     email_list = Message.objects.all()
     emails = _paginate(request, email_list)
   
-    redirect("list_tickets")
+    return redirect("list_tickets")
     
 def email_inbox(request):
   email_list = Message.objects.all()
