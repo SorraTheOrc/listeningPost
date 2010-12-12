@@ -498,10 +498,10 @@ def record_email(mail):
             if type == 'application/pgp-signature':
                 pgp = part.get_payload(decode=False)
             elif type == "text/plain":
-                body += part.get_payload(decode=False)
+                body += part.get_payload(decode=True)
                 body = textwrap.fill(body, 63)
     else:
-        body =  mail.get_payload(decode=False)
+        body =  mail.get_payload(decode=True)
     
     raw = mail.as_string()
         
