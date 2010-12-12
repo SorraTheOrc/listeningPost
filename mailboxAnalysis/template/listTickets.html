@@ -14,6 +14,7 @@
         <p><a href="{% url mark_ticket_complete ticket_id=ticket.id %}">Mark Complete</a></p>
 	    {% for email in ticket.actions.all %}
 	      <div class="email">
+	        <p><a href="{% url reply_email email_id=email.id %}">Reply</a></p>
 	        <p><a href="{% url view_email email_id=email.id %}">{{ email.subject }}</a>
 	        from <span class="from">{{ email.fromParticipant }}</span></p>
 	        <p><pre>{{ email.body }}</pre></p>
