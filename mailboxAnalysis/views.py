@@ -263,8 +263,11 @@ def email_retrieve(request):
   
     return redirect("list_tickets")
     
-def email_inbox(request):
-  email_list = Message.objects.all()
+def email_inbox(request, list_id = None):
+  if list_id is None:
+      email_list = Message.objects.all()
+  else:
+      email_list = Message.objects.filter(list = list_id)
   emails = _paginate(request, email_list)
   
   data = {}
@@ -521,7 +524,7 @@ def record_email(mail):
         list_name = list_header
     else:
         list_name = mail.get("To") 
-    list = Maillist(list_name)
+    list = Maillist(name=list_name)
     list.save()
 
     values = {'date': date, 

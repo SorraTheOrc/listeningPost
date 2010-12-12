@@ -13,10 +13,11 @@ urlpatterns = patterns('mailboxAnalysis.views',
     
     (r'^report$', 'report'),
     
-    (r'^mailinglist/list$', 'mailinglist_list'),
+    url(r'^mailinglist/list$', 'mailinglist_list', name='mailinglist_emails'),
+    url(r'^mailinglist/(?P<list_id>\d+)/inbox/$', 'email_inbox', name="mailinglist_email"),
 
     url(r'^mail/(?P<email_id>\d+)/read/$', 'email_detail', name='view_email'),
-    (r'^mail/inbox/$', 'email_inbox'),
+    url(r'^mail/inbox/$', 'email_inbox', name="inbox"),
     url(r'^mail/(?P<email_id>\d+)/reply/$', 'email_reply', name='reply_email'),
     url(r'^mail/retrieve/$', 'email_retrieve', name='retrieve_email'),
     url(r'^mail/send/$', 'email_send', name='send_email'),

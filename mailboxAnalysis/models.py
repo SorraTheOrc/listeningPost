@@ -6,7 +6,8 @@ from helpdesk.models import FollowUp, Queue, Ticket
 import re
 
 class Maillist(models.Model):
-    name = models.CharField(max_length = 35, primary_key=True)
+    id = models.AutoField(primary_key = True)
+    name = models.CharField(max_length = 35)
     
     def _get_email_count(self):
         return Message.objects.filter(list = self).count()
