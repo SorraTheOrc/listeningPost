@@ -146,7 +146,6 @@ def report(request):
 def list_tickets(request):
     data = {}
     tickets = Ticket.objects.filter(status = Ticket.OPEN_STATUS).order_by('priority', 'modified')
-    print tickets
     data["tickets"] = _paginate(request, tickets)
     add_main_menu(data)
     return render_to_response("listTickets.html", data)

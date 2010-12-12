@@ -19,9 +19,32 @@
 	        from <a href="/analysis/participant/{{ email.fromParticipant.id }}/detail">{{ email.fromParticipant }}</a></p>
 	        <p><pre>{{ email.body }}</pre></p>
 	      </div>
-	    {% endfor %}
+	      
+<div id="thread-accordion-{{  email.id }}">
+  {% for thread_email in email.thread %}
+  <div>
+    <h6><a href="#">{{ thread_email.fromParticipant }}</a></h6>
+      
+    <div>
+      <div class="email">
+        <p><a href="{% url reply_email email_id=thread_email.id %}">Reply</a></p>
+        <p><pre>{{ thread_email.body }}</pre></p>
+      </div>
 	</div>
   </div>
+  {% endfor %} 
+</div>
+
+<script type="text/javascript">
+	$(function(){
+		$("#thread-accordion-{{ email.id }}").accordion({ header: "h6", collapsible: true, autoHeight: false});
+		$("#thread-accordion-{{ email.id }}").accordion( 'activate', 0);
+	});
+</script>
+	      
+	    {% endfor %}
+	</div>
+  </div>  
   {% endfor %}  
 </div>
 

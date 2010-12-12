@@ -4,19 +4,45 @@
 {% block pageTitle %}{{ email.subject }}{% endblock %}
 
 {% block content %}
-<ul>
-  <li>Subject: {{ email.subject }}</li>
-  <li>From: <a href="/analysis/participant/{{ email.fromParticipant.id }}/emails" alt="Display all emails from {{ email.fromParticipant }}" title="emails from {{ email.fromParticipant }}">{{ email.fromParticipant }}</a></li>
-  <li>Date: {{ email.date }}</li>
-  <li>Most Frequent Words: 
-    <ul>
-      {% for word, count in email.word_count|slice:":5" %}
-        <li>{{ word }}: {{ count }}</li>
-      {% endfor %}
-    </ul>
-  </li>
-</ul>
-<pre>{{ email.body }}</pre>
+<div id="thread-accordion">
+  <div>
+	  <h6><a href="#">{{ email.subject }}</a></h6>
+	  <div>
+        <p><a href="{% url reply_email email_id=email.id %}">Reply</a></p>
+  	    <ul>
+	      <li>From: <a href="/analysis/participant/{{ email.fromParticipant.id }}/emails" alt="Display all emails from {{ email.fromParticipant }}" title="emails from {{ email.fromParticipant }}">{{ email.fromParticipant }}</a></li>
+	      <li>Date: {{ email.date }}</li>
+    	  <li>Most Frequent Words: 
+	        <ul>
+	          {% for word, count in email.word_count|slice:":5" %}
+	            <li>{{ word }}: {{ count }}</li>
+	          {% endfor %}
+	        </ul>
+	      </li>
+	    </ul>
+	    <p><pre>{{ email.body }}</pre></p>
+	  </div>
+  </div>
+  
+  {% for thread_email in email.thread %}
+  <div>
+    <h6><a href="#">{{ thread_email.fromParticipant }}</a></h6>
+      
+    <div>
+      <div class="email">
+        <p><a href="{% url reply_email email_id=thread_email.id %}">Reply</a></p>
+        <p><pre>{{ thread_email.body }}</pre></p>
+      </div>
+	</div>
+  </div>
+  {% endfor %}  
+</div>
+
+<script type="text/javascript">
+	$(function(){
+		$("#thread-accordion").accordion({ header: "h6", collapsible: true, autoHeight: false});
+	});
+</script>
 
 <a href="{% url reply_email email_id=email.id %}">Reply</a>
 

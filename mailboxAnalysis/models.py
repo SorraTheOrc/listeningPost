@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from django.db.models.signals import post_save
 from django.db import models
-from helpdesk.models import Queue, Ticket
+from helpdesk.models import FollowUp, Queue, Ticket
 
 import re
 
@@ -96,7 +96,6 @@ class Message(models.Model):
         Get a sotrted list containing a count of words in the body of this email.
         Common stop words and punctioation are removed.
         """
-        print "in word count"
         freq_dict = self._get_word_dictionary()
         freq_list = freq_dict.items()
         return sorted(freq_list, key = lambda word: -word[1])
@@ -122,7 +121,22 @@ class Message(models.Model):
             action.status = Ticket.CLOSED_STATUS
             action.resolution = follow_up.comment
             action.save()
-       
+    
+    def _get_thread(self):
+        """
+        Get all the emails in this thread.
+        """
+        thread = []
+        if self.backlink:
+            reply_to = Message.objects.filter(messageID = self.backlink)
+            for email in reply_to:
+                thread.append(email)
+                thread.extend(email.thread)
+            return thread
+        else:
+            return thread
+    thread = property(_get_thread)
+    
     def __unicode__(self):
         return u"'%s' on '%s' from %s" % (self.subject, self.list.name, self.fromParticipant.emailAddr)
 
