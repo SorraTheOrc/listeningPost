@@ -9,7 +9,7 @@ from django.core.context_processors import csrf
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import redirect, render_to_response, get_object_or_404
 from django.template import RequestContext
 from helpdesk.models import FollowUp, Queue, Ticket
 import os, email.Utils, glob, gzip, mailbox, poplib, operator, re, string, textwrap, time
@@ -262,11 +262,8 @@ def email_retrieve(request):
     email_list = Message.objects.all()
     emails = _paginate(request, email_list)
   
-    data = {}
-    data["tickets"] = _paginate(request, Ticket.objects.filter(status = Ticket.OPEN_STATUS))
-    add_main_menu(data)
-    return render_to_response("listTickets.html", data)
-
+    redirect("list_tickets")
+    
 def email_inbox(request):
   email_list = Message.objects.all()
   emails = _paginate(request, email_list)
@@ -292,12 +289,8 @@ def ticket_mark_complete(request, ticket_id):
   action.resolution = follow_up.comment
   action.save()
   
-  data = {}
-  data["tickets"] = _paginate(request, Ticket.objects.filter(status = Ticket.OPEN_STATUS))
-  add_main_menu(data)
+  return redirect("list_tickets")
   
-  return render_to_response("listTickets.html", data)
-
 def participant_social(request, participant_id):
   """
   Calculate and display the social graph for a given participant.
