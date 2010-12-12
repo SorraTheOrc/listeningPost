@@ -54,7 +54,7 @@ def process(mail):
         if mail.backlink is not None:
             if Message.objects.filter(messageID = mail.backlink).count() > 0:
                 repliedTo = Message.objects.filter(messageID = mail.backlink)[0]
-                repliedTo.record_reply(instance)
+                repliedTo.record_reply_received(mail)
         
         # if this mail doesn't already have a reply then set an action to check for one
         id = mail.messageID

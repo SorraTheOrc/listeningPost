@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from django.db.models.signals import post_save
 from django.db import models
-from helpdesk.models import Ticket
+from helpdesk.models import Queue, Ticket
 
 import re
 
