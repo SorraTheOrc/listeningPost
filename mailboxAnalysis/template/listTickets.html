@@ -5,25 +5,31 @@
 
 {% block content %}
 
-{% for ticket in tickets.object_list %}
-  <div class="ticket">
-    <p>
-      <span class="title">{{ ticket.title }}</span>
-      <span class="date">{{ ticket.modified }}</span><br/>
-      <span class="action"><a href="{% url mark_ticket_complete ticket_id=ticket.id %}">Complete</a></span><br/>
-    </p>
-	<div class="emails">
+<div id="tickets-accordion">
+  {% for ticket in tickets.object_list %}
+  <div>
+    <h3><a href="#">{{ ticket.title }} - {{ ticket.modified }}</a></h3>
+      
+    <div>
+        <p><a href="{% url mark_ticket_complete ticket_id=ticket.id %}">Mark Complete</a></p>
 	    {% for email in ticket.actions.all %}
 	      <div class="email">
-	        <span class="subject"><a href="{% url view_email email_id=email.id %}">{{ email.subject }}</a></span><br/>
-	        from <span class="from">{{ email.fromParticipant }}</span><br/>
-	        <span class="body" style="word-wrap: break-word"><pre>{{ email.body }}</pre></span><br/>
+	        <p><a href="{% url view_email email_id=email.id %}">{{ email.subject }}</a>
+	        from <span class="from">{{ email.fromParticipant }}</span></p>
+	        <p><pre>{{ email.body }}</pre></p>
 	      </div>
 	    {% endfor %}
 	</div>
   </div>
-  <hr/>
-{% endfor %}
+  {% endfor %}  
+</div>
+
+<script type="text/javascript">
+	$(function(){
+		$("#tickets-accordion").accordion({ header: "h3", collapsible: true, autoHeight: false});
+	});
+</script>
+
 
 <div class="pagination">
     <span class="step-links">
