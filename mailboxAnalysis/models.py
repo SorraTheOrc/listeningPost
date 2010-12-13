@@ -56,6 +56,7 @@ class Message(models.Model):
     messageID = models.CharField(max_length=200, unique = True)
     date = models.DateTimeField()
     fromParticipant = models.ForeignKey(Participant)
+    replyTo = models.EmailField()
     backlink = models.CharField(max_length=200, null = True)
     list = models.ForeignKey(Maillist)
     subject = models.CharField(max_length=150)

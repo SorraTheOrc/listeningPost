@@ -168,7 +168,7 @@ def email_reply(request, email_id):
   email = get_object_or_404(Message, pk = email_id)
   data = {}
   data.update(csrf(request))
-  data["to"] = email.fromParticipant.emailAddr
+  data["to"] = email.replyTo
   data["reply_to_id"] = email.id
   
   subject = email.subject
@@ -505,7 +505,7 @@ def record_email(mail):
     msgID_header = mail.get('Message-Id')
     if (msgID_header): 
         msgID = email.Utils.unquote(msgID_header)
-        
+            
     backlink_header = get_backlink(mail)
     if (backlink_header): 
         backlink = string.replace(email.Utils.unquote(backlink_header),"\n","")
@@ -519,15 +519,20 @@ def record_email(mail):
           participant = Participant(emailAddr = address, pgp = pgp)
           participant.save()
   
+    replyTo_header = mail.get('Reply-To')
+    if not replyTo_header: 
+        replyTo_header = address_header
+  
     list_header = mail.get('list-id')
     if list_header:
         list_name = list_header
     else:
         list_name = mail.get("To") 
-    list = Maillist.objects.get_or_create(name=list_name)
+    list, created = Maillist.objects.get_or_create(name=list_name)
     
     values = {'date': date, 
               'fromParticipant': participant,
+              'replyTo': replyTo_header,
               'backlink': backlink, 
               'list': list, 
               'subject': unicode(subject, errors='ignore'), 
