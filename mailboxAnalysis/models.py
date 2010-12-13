@@ -7,7 +7,7 @@ import re
 
 class Maillist(models.Model):
     id = models.AutoField(primary_key = True)
-    name = models.CharField(max_length = 35)
+    name = models.CharField(max_length = 35, unique=True)
     
     def _get_email_count(self):
         return Message.objects.filter(list = self).count()
