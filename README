@@ -84,4 +84,6 @@ To create a plugin simply create a standard Djang app
 file that contains a process function which will be called when the plugin is
 required to do its work.
 
+See any of the messageProcessingPlugin_* apps for example plugins
+
 

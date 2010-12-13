@@ -1,0 +1,1 @@
+This is a simple plugin that will wrap the content of the body of a message.

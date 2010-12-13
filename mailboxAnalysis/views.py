@@ -12,7 +12,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render_to_response, get_object_or_404
 from django.template import RequestContext
 from helpdesk.models import FollowUp, Queue, Ticket
-import os, email.Utils, glob, gzip, mailbox, poplib, operator, re, string, textwrap, time
+import os, email.Utils, glob, gzip, mailbox, poplib, operator, re, string, time
 
 try:
   import local_plugins as plugins
@@ -496,10 +496,9 @@ def record_email(mail):
                 pgp = part.get_payload(decode=False)
             elif type == "text/plain":
                 body += part.get_payload(decode=True)
-                body = textwrap.fill(body, 63)
     else:
         body =  mail.get_payload(decode=True)
-    
+            
     raw = mail.as_string()
         
     msgID_header = mail.get('Message-Id')

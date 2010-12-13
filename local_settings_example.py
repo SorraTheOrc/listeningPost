@@ -22,4 +22,5 @@ SUBSCRIPTION_POP3_DELETE = False # set to true if you want listeningPost to dele
 # Enabled plugins
 EXTRA_INSTALLED_APPS = (
     'messageProcessingPlugin_Action',
+    'messageProcessingPlugin_TextWrap',
 )
