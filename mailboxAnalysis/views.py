@@ -524,9 +524,8 @@ def record_email(mail):
         list_name = list_header
     else:
         list_name = mail.get("To") 
-    list = Maillist(name=list_name)
-    list.save()
-
+    list = Maillist.objects.get_or_create(name=list_name)
+    
     values = {'date': date, 
               'fromParticipant': participant,
               'backlink': backlink, 
