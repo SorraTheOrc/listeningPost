@@ -143,48 +143,6 @@ def report(request):
   add_main_menu(data)
   return render_to_response("report.html", data)
   
-def email_send(request):
-  """
-  Send an email. The post request should contain the necessary data for
-  sending the mail as follows:
-  subject: the subject of the email
-  body: the body of the email
-  to: the to address
-  """
-  body = request.POST['body']
-  to = request.POST['to']
-  subject = request.POST['subject']
-  reply_to_id = request.POST['reply_to_id']
-  message_id = email.utils.make_msgid()
-  
-  mail = EmailMessage(subject, body, 'from@example.com',
-                      [to],
-                      headers = {'Message-ID': message_id, 'In-Reply-To': reply_to_id})
-  mail.send()
-
-  queue = Queue.objects.get(pk=1)
-  replyTo = Message.objects.filter(id = reply_to_id)[0]
-  actions = replyTo.action.filter(queue=queue)
-  resolution = 'Reply sent on %s' % (datetime.now())
-  for action in actions:
-      follow_up = FollowUp (
-                            ticket=action,
-                            date=datetime.now(),
-                            comment=resolution,
-                            title="Reply sent",
-                            public=False)
-      follow_up.save()
-            
-      action.status = Ticket.RESOLVED_STATUS
-      action.resolution = follow_up.comment
-      action.save()
-
-  data = {}
-  data["tickets"] = _paginate(request, Ticket.objects.filter(status = Ticket.OPEN_STATUS))
-  add_main_menu(data)
-  
-  return render_to_response("listTickets.html", data)
-  
 def participant_social(request, participant_id):
   """
   Calculate and display the social graph for a given participant.

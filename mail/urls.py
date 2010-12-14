@@ -4,6 +4,7 @@ urlpatterns = patterns('mail.views',
     (r'^$', 'index'),
 
     url(r'^inbox/$', 'email_inbox', name="inbox"),
+    url(r'^send/$', 'email_send', name='send_email'),
     url(r'^(?P<email_id>\d+)/read/$', 'email_detail', name='view_email'),
     url(r'^(?P<email_id>\d+)/reply/$', 'email_reply', name='reply_email'),
     

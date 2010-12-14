@@ -12,7 +12,5 @@ urlpatterns = patterns('mailboxAnalysis.views',
     (r'^participant/(?P<participant_id>\d+)/social/$', 'participant_social'),
     
     (r'^report$', 'report'),
-    
-    url(r'^mail/send/$', 'email_send', name='send_email'),
 )
 
