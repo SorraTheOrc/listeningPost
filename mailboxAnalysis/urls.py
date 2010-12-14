@@ -6,10 +6,7 @@ urlpatterns = patterns('mailboxAnalysis.views',
     (r'^configureImport$', 'configure_import'),
     (r'^startImport$', 'start_import'),
 
-    (r'^participant/list$', 'list_participants'),
-    (r'^participant/(?P<participant_id>\d+)/detail/$', 'participant_detail'),
-    (r'^participant/(?P<participant_id>\d+)/emails/$', 'participant_emails'),
-    (r'^participant/(?P<participant_id>\d+)/social/$', 'participant_social'),
+    url(r'^participant/(?P<participant_id>\d+)/social/$', 'social_graph', name="social_graph"),
     
     (r'^report$', 'report'),
 )

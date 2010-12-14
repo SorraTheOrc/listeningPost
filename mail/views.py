@@ -231,6 +231,41 @@ def mailinglist_list(request):
     add_main_menu(data)
     return render_to_response("listMailinglist.html", data)
   
+def list_participants(request):
+  participants = _paginate(request, Participant.objects.all())
+  data = {}
+  data["participants"] = participants
+  add_main_menu(data)
+  return render_to_response("listParticipants.html", data)
+
+def participant_emails(request, participant_id):
+  emails = _paginate(request, Message.objects.filter(fromParticipant = participant_id))
+  data = {}
+  data["emails"] = emails
+  add_main_menu(data)
+  return render_to_response("listEmails.html", data)
+
+def participant_detail(reqeust, participant_id):
+  data = {}
+  participant = get_object_or_404(Participant, pk=participant_id)
+  data["participant"] = participant
+  data['firstEmail'] = Message.objects.filter(fromParticipant = participant).order_by('date')[0]
+  data['lastEmail'] = Message.objects.filter(fromParticipant = participant).order_by('-date')[0]
+  
+  emails = Message.objects.filter(fromParticipant = participant)
+  dictionary = {} 
+  for email in emails:
+    words = email.dictionary
+    for word in words:
+      try:
+        dictionary[str(word)] += 1
+      except:
+        dictionary[str(word)] = 1
+  data["word_count"] = sorted(dictionary.items(), key = lambda word: -word[1])
+  
+  add_main_menu(data)
+  return render_to_response("detailParticipant.html", data)
+
 def record_email(mail):
     """
     Record a single email in the database. Included messageProcessingPlugin
