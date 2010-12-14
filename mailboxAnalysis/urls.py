@@ -16,10 +16,8 @@ urlpatterns = patterns('mailboxAnalysis.views',
     url(r'^mailinglist/list$', 'mailinglist_list', name='mailinglist_emails'),
     
     url(r'^mail/(?P<email_id>\d+)/reply/$', 'email_reply', name='reply_email'),
-    url(r'^mail/retrieve/$', 'email_retrieve', name='retrieve_email'),
     url(r'^mail/send/$', 'email_send', name='send_email'),
     
-    url(r'ticket/list$', 'list_tickets', name="list_tickets"),
     url(r'ticket/(?P<ticket_id>\d+)/complete$', 'ticket_mark_complete', name="mark_ticket_complete"),
 )
 
