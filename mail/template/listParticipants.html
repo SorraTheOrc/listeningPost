@@ -19,7 +19,7 @@
       <td><a href="{% url participant_detail participant_id=participant.id %}">{{ participant.emailAddr }}</a></td>
       <td>{{ participant.email_count }}</td>
       <td>{{ participant.reply_to_count }}</td>
-      <td><a href="/analysis/participant/{{ participant.id }}/social">Social Graph</a></td>
+      <td><a href="{% url social_graph participant_id=email.participant.id %}">Social Graph</a></td>
     </tr>
   {% endfor %}
 </table>

@@ -10,7 +10,7 @@
 	  <div>
         <p><a href="{% url reply_email email_id=email.id %}">Reply</a></p>
   	    <ul>
-	      <li>From: <a href="/analysis/participant/{{ email.fromParticipant.id }}/emails" alt="Display all emails from {{ email.fromParticipant }}" title="emails from {{ email.fromParticipant }}">{{ email.fromParticipant }}</a></li>
+	      <li>From: <a href="{% url participant_detail participant_id=email.fromParticipant.id %}" alt="Display all emails from {{ email.fromParticipant }}" title="emails from {{ email.fromParticipant }}">{{ email.fromParticipant }}</a></li>
 	      <li>Date: {{ email.date }}</li>
     	  <li>Most Frequent Words: 
 	        <ul>
