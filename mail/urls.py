@@ -5,6 +5,7 @@ urlpatterns = patterns('mail.views',
 
     url(r'^inbox/$', 'email_inbox', name="inbox"),
     url(r'^(?P<email_id>\d+)/read/$', 'email_detail', name='view_email'),
+    url(r'^(?P<email_id>\d+)/reply/$', 'email_reply', name='reply_email'),
     
     url(r'^retrieve/$', 'email_retrieve', name='retrieve_email'),
     

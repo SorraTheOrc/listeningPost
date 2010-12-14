@@ -150,33 +150,6 @@ def mailinglist_list(request):
     add_main_menu(data)
     return render_to_response("listMailinglist.html", data)
   
-def email_reply(request, email_id):
-  email = get_object_or_404(Message, pk = email_id)
-  data = {}
-  data.update(csrf(request))
-  data["to"] = email.replyTo
-  data["reply_to_id"] = email.id
-  
-  subject = email.subject
-  if not subject.startswith('Re:'):
-    subject = "Re: " + subject
-  data["subject"] = subject
-  
-  body = "On "
-  body += email.date.strftime("%d/%m/%y")
-  body += " "
-  body += email.fromParticipant.emailAddr
-  body += " said:\n"  
-  
-  for line in email.body.splitlines():
-    if line.startswith('>'):
-        body += ">" + line + "\n"
-    else:
-        body += "> " + line + "\n"
-  data["body"] = body
-  add_main_menu(data)
-  return render_to_response("replyEmail.html", data)
-  
 def email_send(request):
   """
   Send an email. The post request should contain the necessary data for

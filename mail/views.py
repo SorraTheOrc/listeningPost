@@ -3,6 +3,7 @@ import email.Utils, poplib, re, string, time
 from datetime import datetime, timedelta
 
 from django.conf import settings
+from django.core.context_processors import csrf
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import redirect, render_to_response, get_object_or_404
 
@@ -150,6 +151,32 @@ def email_retrieve(request):
   
     return redirect("list_email_tickets")
 
+def email_reply(request, email_id):
+  email = get_object_or_404(Message, pk = email_id)
+  data = {}
+  data.update(csrf(request))
+  data["to"] = email.replyTo
+  data["reply_to_id"] = email.id
+  
+  subject = email.subject
+  if not subject.startswith('Re:'):
+    subject = "Re: " + subject
+  data["subject"] = subject
+  
+  body = "On "
+  body += email.date.strftime("%d/%m/%y")
+  body += " "
+  body += email.fromParticipant.emailAddr
+  body += " said:\n"  
+  
+  for line in email.body.splitlines():
+    if line.startswith('>'):
+        body += ">" + line + "\n"
+    else:
+        body += "> " + line + "\n"
+  data["body"] = body
+  add_main_menu(data)
+  return render_to_response("composeEmail.html", data)
   
 def record_email(mail):
     """
