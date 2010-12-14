@@ -142,27 +142,24 @@ def email_send(request):
   mail.send()
 
   queue = Queue.objects.get(pk=1)
-  replyTo = Message.objects.filter(id = reply_to_id)[0]
-  actions = replyTo.action.filter(queue=queue)
-  resolution = 'Reply sent on %s' % (datetime.now())
-  for action in actions:
-      follow_up = FollowUp (
-                            ticket=action,
-                            date=datetime.now(),
-                            comment=resolution,
-                            title="Reply sent",
-                            public=False)
-      follow_up.save()
+  if reply_to_id:
+      replyTo = Message.objects.get(id = reply_to_id)
+      actions = replyTo.action.filter(queue=queue)
+      resolution = 'Reply sent on %s' % (datetime.now())
+      for action in actions:
+          follow_up = FollowUp (
+                                ticket=action,
+                                date=datetime.now(),
+                                comment=resolution,
+                                title="Reply sent",
+                                public=False)
+          follow_up.save()
             
-      action.status = Ticket.RESOLVED_STATUS
-      action.resolution = follow_up.comment
-      action.save()
-
-  data = {}
-  data["tickets"] = _paginate(request, Ticket.objects.filter(status = Ticket.OPEN_STATUS))
-  add_main_menu(data)
+          action.status = Ticket.RESOLVED_STATUS
+          action.resolution = follow_up.comment
+          action.save()
   
-  return render_to_response("listTickets.html", data)
+  return redirect("list_email_tickets")
 
 def email_retrieve(request):
     """
@@ -193,6 +190,12 @@ def email_retrieve(request):
     emails = _paginate(request, email_list)
   
     return redirect("list_email_tickets")
+
+def email_compose(request):
+  data = {}
+  data.update(csrf(request))
+  add_main_menu(data)
+  return render_to_response("composeEmail.html", data)
 
 def email_reply(request, email_id):
   email = get_object_or_404(Message, pk = email_id)

@@ -260,6 +260,7 @@ def add_main_menu(data):
     Add the main menu items to the data dictionary.
     """
     data["menu"] = [{"text": "Home", "href":  "/analysis"},
+                    {"text": "Compose", "href":  "/mail/compose"},
                     {"text": "Inbox", "href":  "/mail/inbox"},
                     {"text": "Mail Lists", "href":  "/mail/mailinglist/list"},
                     {"text": "List participants", "href":  "/mail/participant/list"},
