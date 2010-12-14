@@ -178,6 +178,16 @@ def email_reply(request, email_id):
   add_main_menu(data)
   return render_to_response("composeEmail.html", data)
   
+def mailinglist_list(request):
+    """
+    Provide a list of all the mailing lists we are aware of.
+    """
+    lists = _paginate(request, Maillist.objects.all())
+    data = {}
+    data["lists"] = lists
+    add_main_menu(data)
+    return render_to_response("listMailinglist.html", data)
+  
 def record_email(mail):
     """
     Record a single email in the database. Included messageProcessingPlugin

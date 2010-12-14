@@ -143,13 +143,6 @@ def report(request):
   add_main_menu(data)
   return render_to_response("report.html", data)
   
-def mailinglist_list(request):
-    lists = _paginate(request, Maillist.objects.all())
-    data = {}
-    data["lists"] = lists
-    add_main_menu(data)
-    return render_to_response("listMailinglist.html", data)
-  
 def email_send(request):
   """
   Send an email. The post request should contain the necessary data for
@@ -345,7 +338,7 @@ def add_main_menu(data):
     """
     data["menu"] = [{"text": "Home", "href":  "/analysis"},
                     {"text": "Inbox", "href":  "/mail/inbox"},
-                    {"text": "Mail Lists", "href":  "/analysis/mailinglist/list"},
+                    {"text": "Mail Lists", "href":  "/mail/mailinglist/list"},
                     {"text": "List participants", "href":  "/analysis/participant/list"},
                     {"text": "Import archives", "href":  "/analysis/configureImport"},
                     {"text": "Actions", "href":  "/mail/ticket/list"},

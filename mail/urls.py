@@ -12,3 +12,8 @@ urlpatterns = patterns('mail.views',
     url(r'^ticket/list$', 'list_email_tickets', name="list_email_tickets"),
     url(r'^ticket/(?P<ticket_id>\d+)/complete$', 'ticket_mark_complete', name="mark_ticket_complete"),
 )
+
+urlpatterns += patterns('mail.views',
+    url(r'^mailinglist/list$', 'mailinglist_list', name='mailinglist_emails'),
+    url(r'^mailinglist/(?P<list_id>\d+)/inbox/$', 'email_inbox', name="mailinglist_email"),
+)
