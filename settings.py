@@ -81,6 +81,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'listeningPost.urls'
 
 TEMPLATE_DIRS = (
+    os.path.join(PROJECT_PATH, 'template'),
     os.path.join(PROJECT_PATH, 'mailboxAnalysis/template'),
     os.path.join(PROJECT_PATH, 'mail/template'),
 )
