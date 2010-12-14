@@ -81,7 +81,8 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'listeningPost.urls'
 
 TEMPLATE_DIRS = (
-    os.path.join(PROJECT_PATH, 'mailboxAnalysis/template')
+    os.path.join(PROJECT_PATH, 'mailboxAnalysis/template'),
+    os.path.join(PROJECT_PATH, 'mail/template'),
 )
 
 INSTALLED_APPS = (
@@ -94,6 +95,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'helpdesk',
+    'mail',
     'mailboxAnalysis',
     'tagging',
 )

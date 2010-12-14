@@ -156,13 +156,6 @@ def mailinglist_list(request):
     data["lists"] = lists
     add_main_menu(data)
     return render_to_response("listMailinglist.html", data)
-
-def email_detail(request, email_id):
-  email = get_object_or_404(Message, pk = email_id)
-  data = {}
-  data["email"] = email
-  add_main_menu(data)
-  return render_to_response("detailEmail.html", data)
   
 def email_reply(request, email_id):
   email = get_object_or_404(Message, pk = email_id)
@@ -262,18 +255,6 @@ def email_retrieve(request):
     emails = _paginate(request, email_list)
   
     return redirect("list_tickets")
-    
-def email_inbox(request, list_id = None):
-  if list_id is None:
-      email_list = Message.objects.all()
-  else:
-      email_list = Message.objects.filter(list = list_id)
-  emails = _paginate(request, email_list)
-  
-  data = {}
-  data["emails"] = emails 
-  add_main_menu(data)
-  return render_to_response("listEmails.html", data)
 
 def ticket_mark_complete(request, ticket_id):
   resolution = "Marked complete by " + request.user.username
@@ -548,7 +529,7 @@ def add_main_menu(data):
     Add the main menu items to the data dictionary.
     """
     data["menu"] = [{"text": "Home", "href":  "/analysis"},
-                    {"text": "Inbox", "href":  "/analysis/mail/inbox"},
+                    {"text": "Inbox", "href":  "/mail/inbox"},
                     {"text": "Mail Lists", "href":  "/analysis/mailinglist/list"},
                     {"text": "List participants", "href":  "/analysis/participant/list"},
                     {"text": "Import archives", "href":  "/analysis/configureImport"},

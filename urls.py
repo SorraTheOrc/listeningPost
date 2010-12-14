@@ -7,6 +7,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^analysis/', include('mailboxAnalysis.urls')),
+    (r'^mail/', include('mail.urls')),
     (r'helpdesk/', include('helpdesk.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:

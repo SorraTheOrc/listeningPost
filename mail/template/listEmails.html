@@ -18,7 +18,7 @@
     <tr>
       <td><a href="/analysis/participant/{{ email.fromParticipant.id }}/detail">{{ email.fromParticipant }}</a></td>
       <td>{{ email.date }}</td>
-      <td><a href="/analysis/mail/{{ email.id }}/read" alt="Read the email with subject '{{ email.subject }}'" title="Read email">{{ email.subject }}</a></td>
+      <td><a href="{% url view_email email_id=email.id %}" alt="Read the email with subject '{{ email.subject }}'" title="Read email">{{ email.subject }}</a></td>
       <td>
 	{% if email.backlink %}
 	  <a href="{% url view_email email_id=email.id %}">{{ email.subject }}</a>
