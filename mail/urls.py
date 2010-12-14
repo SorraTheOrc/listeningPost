@@ -9,4 +9,5 @@ urlpatterns = patterns('mail.views',
     url(r'^retrieve/$', 'email_retrieve', name='retrieve_email'),
     
     url(r'^ticket/list$', 'list_email_tickets', name="list_email_tickets"),
+    url(r'^ticket/(?P<ticket_id>\d+)/complete$', 'ticket_mark_complete', name="mark_ticket_complete"),
 )

@@ -219,25 +219,6 @@ def email_send(request):
   
   return render_to_response("listTickets.html", data)
   
-
-def ticket_mark_complete(request, ticket_id):
-  resolution = "Marked complete by " + request.user.username
-  action = Ticket.objects.get(pk=ticket_id)
-  follow_up = FollowUp (
-                        ticket=action,
-                        date=datetime.now(),
-                        comment=resolution,
-                        title="Reply Sent",
-                        public=True)
-  follow_up.save()
-  
-  action = get_object_or_404(Ticket, pk=ticket_id)
-  action.status = Ticket.CLOSED_STATUS
-  action.resolution = follow_up.comment
-  action.save()
-  
-  return redirect("list_tickets")
-  
 def participant_social(request, participant_id):
   """
   Calculate and display the social graph for a given participant.
