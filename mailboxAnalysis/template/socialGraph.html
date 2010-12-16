@@ -8,20 +8,21 @@
 
 <table>
   <tr>
-    <th>Participant</th>
-    <th>Strength</th>
+    <th>Friend</th>
+    <th>Relationship Strength</th>
   </td>
 
-  {% for participant, strength in participants %}
+{% for participant, strength in participants %}
     <tr>
       <td>{{ participant }}</td>
       <td>{{ strength }}</td>
     </tr>
-  {% endfor %}
+{% endfor %}
 
 </table>
-
+{% if dot %}
 <h2>DOT file</h2>
 <pre>{{ dot }}<pre>
+{% endif %}
 
 {% endblock %}

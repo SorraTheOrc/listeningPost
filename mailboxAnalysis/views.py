@@ -45,7 +45,7 @@ def _get_social_graph(emails, participant, decay = 5, maxage = 2000, depth = 2):
     friends = {}
     earliest_date = datetime.now() - timedelta(maxage)
     for email in emails:
-        if email.backlink is not None and not email.fromParticipant == participant:
+        if email.backlink is not None:
             replyTo = Message.objects.filter(messageID=email.backlink).filter(date__gte=earliest_date)
             if len(replyTo) == 1:
                 repliedParticipant = replyTo[0].fromParticipant
@@ -114,7 +114,6 @@ def social_graph(request, participant_id):
 
   participant = get_object_or_404(Participant, pk=participant_id)
   data["participant"] = participant
-
   emails = Message.objects.filter(fromParticipant = participant)
 
   friends = _get_social_graph(emails, participant)
