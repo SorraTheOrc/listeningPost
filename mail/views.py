@@ -240,7 +240,7 @@ def participant_emails(request, participant_id):
   data["emails"] = emails
   return render_to_response("listEmails.html", data, context_instance = RequestContext(request))
 
-def participant_detail(reqeust, participant_id):
+def participant_detail(request, participant_id):
   data = {}
   participant = get_object_or_404(Participant, pk=participant_id)
   data["participant"] = participant
