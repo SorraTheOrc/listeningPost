@@ -1,0 +1,9 @@
+{% extends "page.tmpl.html" %}
+{% load menubuilder %}
+
+{% block submenu %}
+  {% menu analysis %}
+  {% for item in menuitems %}
+    <a href="{{ item.url }}" title="{{item.title}}" class="button">{{ item.title }}</a>
+  {% endfor %}
+{% endblock %}

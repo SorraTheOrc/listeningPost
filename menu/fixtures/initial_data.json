@@ -1,0 +1,40 @@
+[
+  {
+    "model": "menu.menu", 
+    "pk": "main", 
+    "fields": {
+    	"description": "", 
+    	"name": "Main", 
+    	"base_url": ""}
+   }, 
+   {
+     "model": "menu.menuitem", 
+     "pk": "main.home", 
+     "fields": {
+     	"menu": "main", 
+     	"link_url": "/", 
+     	"login_required": false, 
+     	"order": 10, 
+     	"title": "Home"}
+   }, 
+   {
+     "model": "menu.menuitem", 
+     "pk": "main.mail", 
+     "fields": {
+     	"menu": "main", 
+     	"link_url": "/mail/ticket/list", 
+     	"login_required": false, 
+     	"order": 30, 
+     	"title": "Mail"}
+   }, 
+   {
+     "model": "menu.menuitem", 
+     "pk": "main.analysis", 
+     "fields": {
+     	"menu": "main", 
+     	"link_url": "/analysis", 
+     	"login_required": false, 
+     	"order": 50, 
+     	"title": "Analysis"}
+   }
+]

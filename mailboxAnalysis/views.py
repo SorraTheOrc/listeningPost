@@ -82,8 +82,7 @@ def index(request):
   data["total_lists"] = Maillist.objects.count()
   data["total_emails"] = Message.objects.count()
   data["total_participants"] = Participant.objects.count()
-  add_main_menu(data)
-  return render_to_response('index.html', data)
+  return render_to_response('index.html', data, context_instance = RequestContext(request))
 
 def report(request):
   earliest_date = datetime.now() - timedelta(30)
@@ -105,8 +104,7 @@ def report(request):
   
   data["other_open_actions"] = Ticket.objects.exclude(queue = reply_queue).filter(status = Ticket.OPEN_STATUS)
   
-  add_main_menu(data)
-  return render_to_response("report.html", data)
+  return render_to_response("report.html", data, context_instance = RequestContext(request))
   
 def social_graph(request, participant_id):
   """
@@ -144,8 +142,7 @@ def social_graph(request, participant_id):
 
   data["participants"] = friends
   data["dot"] = dot
-  add_main_menu(data)
-  return render_to_response("socialGraph.html", data)
+  return render_to_response("socialGraph.html", data, context_instance = RequestContext(request))
 
 def configure_import(request):
   """
@@ -154,8 +151,6 @@ def configure_import(request):
   """
   data = {}
   data.update(csrf(request))
-  add_main_menu(data)
-  
   return render_to_response('configureImport.html', 
                             data,
                             context_instance = RequestContext(request))
@@ -186,8 +181,6 @@ def start_import(request):
   results["list"] = list_name
   emails_after = Message.objects.count()
   results["total_emails"] = emails_after
-  add_main_menu(results)
-
   return render_to_response("importResults.html",
                             results,
                             context_instance = RequestContext(request))
@@ -254,18 +247,3 @@ def process(file):
   return {"processed": processed, "created": new, "duplicate": duplicate, 
           "invalid": invalid, "with_backlink": processed - no_backlink, 
           "no_backlink": no_backlink}
-
-def add_main_menu(data):
-    """
-    Add the main menu items to the data dictionary.
-    """
-    data["menu"] = [{"text": "Home", "href":  "/analysis"},
-                    {"text": "Compose", "href":  "/mail/compose"},
-                    {"text": "Inbox", "href":  "/mail/inbox"},
-                    {"text": "Mail Lists", "href":  "/mail/mailinglist/list"},
-                    {"text": "List participants", "href":  "/mail/participant/list"},
-                    {"text": "Import archives", "href":  "/analysis/configureImport"},
-                    {"text": "Actions", "href":  "/mail/ticket/list"},
-                    {"text": "Retrieve", "href":  "/mail/retrieve"},
-                    {"text": "Report", "href":  "/analysis/report"},]
-    return data

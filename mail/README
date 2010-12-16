@@ -1,0 +1,11 @@
+Retrieve and process email.
+
+Optional Dependencies
+=====================
+
+Menu
+----
+
+By default this app provides menu commands via fixtures for the menu app.
+If you don't want to use the menu app then you need to remove these fixtures
+and ensure that your template system provides appropriate menu links.

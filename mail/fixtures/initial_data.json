@@ -1,0 +1,70 @@
+[
+  {
+    "model": "menu.menu", 
+    "pk": "mail", 
+    "fields": {
+    	"description": "Access to the main mail application functions.", 
+    	"name": "Mail", 
+    	"base_url": "/mail"}
+   },
+   {
+     "model": "menu.menuitem", 
+     "pk": "mail.actions", 
+     "fields": {
+     	"menu": "mail", 
+     	"link_url": "/mail/ticket/list", 
+     	"login_required": false, 
+     	"order": 30, 
+     	"title": "Actions"}
+   }, 
+   {
+     "model": "menu.menuitem", 
+     "pk": "mail.compose", 
+     "fields": {
+     	"menu": "mail", 
+     	"link_url": "/mail/compose", 
+     	"login_required": false, 
+     	"order": 30, 
+     	"title": "Compose"}
+   }, 
+   {
+     "model": "menu.menuitem", 
+     "pk": "mail.inbox", 
+     "fields": {
+     	"menu": "mail", 
+     	"link_url": "/mail/inbox", 
+     	"login_required": false, 
+     	"order": 80, 
+     	"title": "Inbox"}
+   },  
+   {
+     "model": "menu.menuitem", 
+     "pk": "mail.participants", 
+     "fields": {
+     	"menu": "mail", 
+     	"link_url": "/mail/participant/list", 
+     	"login_required": false, 
+     	"order": 60, 
+     	"title": "Participants"}
+   }, 
+   {
+     "model": "menu.menuitem", 
+     "pk": "mail.lists", 
+     "fields": {
+     	"menu": "mail", 
+     	"link_url": "/mail/mailinglist/list", 
+     	"login_required": false, 
+     	"order": 100, 
+     	"title": "Lists"}
+   },
+   {
+     "model": "menu.menuitem", 
+     "pk": "mail.retrieve", 
+     "fields": {
+     	"menu": "mail", 
+     	"link_url": "/mail/retrieve", 
+     	"login_required": false, 
+     	"order": 120, 
+     	"title": "Retrieve"}
+   }
+]

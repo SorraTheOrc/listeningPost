@@ -14,5 +14,33 @@
       "title": "Vote Needed",
       "slug": "vote"
     }
-  }
+  }, 
+  {
+    "model": "menu.menu", 
+    "pk": "analysis", 
+    "fields": {
+    	"description": "", 
+    	"name": "Analysis", 
+    	"base_url": "/analysis"}
+   }, 
+   {
+     "model": "menu.menuitem", 
+     "pk": "analysis.import", 
+     "fields": {
+     	"menu": "analysis", 
+     	"link_url": "/analysis/configureImport", 
+     	"login_required": false, 
+     	"order": 30, 
+     	"title": "Import"}
+   }, 
+   {
+     "model": "menu.menuitem", 
+     "pk": "analysis.report", 
+     "fields": {
+     	"menu": "analysis", 
+     	"link_url": "/analysis/report", 
+     	"login_required": false, 
+     	"order": 20, 
+     	"title": "Report"}
+   }
 ]

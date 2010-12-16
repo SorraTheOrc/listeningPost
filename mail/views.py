@@ -7,10 +7,10 @@ from django.core.context_processors import csrf
 from django.core.mail import EmailMessage
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import redirect, render_to_response, get_object_or_404
+from django.template import RequestContext  
 
 from helpdesk.models import FollowUp, Queue, Ticket
 
-from mailboxAnalysis.views import add_main_menu
 from mailboxAnalysis.models import Archive
 from mailboxAnalysis.models import Message
 from mailboxAnalysis.models import Maillist
@@ -52,8 +52,7 @@ def email_inbox(request, list_id=None):
   
   data = {}
   data["emails"] = emails 
-  add_main_menu(data)
-  return render_to_response("listEmails.html", data)
+  return render_to_response("listEmails.html", data, context_instance = RequestContext(request))
 
 def email_detail(request, email_id):
   """
@@ -63,8 +62,7 @@ def email_detail(request, email_id):
   email = get_object_or_404(Message, pk=email_id)
   data = {}
   data["email"] = email
-  add_main_menu(data)
-  return render_to_response("detailEmail.html", data)
+  return render_to_response("detailEmail.html", data, context_instance = RequestContext(request))
 
 def list_email_tickets(request):
     """
@@ -73,8 +71,7 @@ def list_email_tickets(request):
     data = {}
     tickets = Ticket.objects.filter(status = Ticket.OPEN_STATUS).order_by('priority', 'modified')
     data["tickets"] = _paginate(request, tickets)
-    add_main_menu(data)
-    return render_to_response("listTickets.html", data)
+    return render_to_response("listTickets.html", data, context_instance = RequestContext(request))
 
 
 def ticket_mark_complete(request, ticket_id):
@@ -194,8 +191,7 @@ def email_retrieve(request):
 def email_compose(request):
   data = {}
   data.update(csrf(request))
-  add_main_menu(data)
-  return render_to_response("composeEmail.html", data)
+  return render_to_response("composeEmail.html", data, context_instance = RequestContext(request))
 
 def email_reply(request, email_id):
   email = get_object_or_404(Message, pk = email_id)
@@ -221,8 +217,7 @@ def email_reply(request, email_id):
     else:
         body += "> " + line + "\n"
   data["body"] = body
-  add_main_menu(data)
-  return render_to_response("composeEmail.html", data)
+  return render_to_response("composeEmail.html", data, context_instance = RequestContext(request))
   
 def mailinglist_list(request):
     """
@@ -231,22 +226,19 @@ def mailinglist_list(request):
     lists = _paginate(request, Maillist.objects.all())
     data = {}
     data["lists"] = lists
-    add_main_menu(data)
-    return render_to_response("listMailinglist.html", data)
+    return render_to_response("listMailinglist.html", data, context_instance = RequestContext(request))
   
 def list_participants(request):
   participants = _paginate(request, Participant.objects.all())
   data = {}
   data["participants"] = participants
-  add_main_menu(data)
-  return render_to_response("listParticipants.html", data)
+  return render_to_response("listParticipants.html", data, context_instance = RequestContext(request))
 
 def participant_emails(request, participant_id):
   emails = _paginate(request, Message.objects.filter(fromParticipant = participant_id))
   data = {}
   data["emails"] = emails
-  add_main_menu(data)
-  return render_to_response("listEmails.html", data)
+  return render_to_response("listEmails.html", data, context_instance = RequestContext(request))
 
 def participant_detail(reqeust, participant_id):
   data = {}
@@ -266,8 +258,7 @@ def participant_detail(reqeust, participant_id):
         dictionary[str(word)] = 1
   data["word_count"] = sorted(dictionary.items(), key = lambda word: -word[1])
   
-  add_main_menu(data)
-  return render_to_response("detailParticipant.html", data)
+  return render_to_response("detailParticipant.html", data, context_instance = RequestContext(request))
 
 def record_email(mail):
     """
