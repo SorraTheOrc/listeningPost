@@ -167,12 +167,12 @@ def start_import(request):
   list_name = request.POST['list']
   input = os.path.join(data_directory, list_name)
   if (not os.path.exists(input)):
-      return render_to_response('configureAnalysis.html',
+      return render_to_response('configureImport.html',
                                 {'error_message': "Unable to find any archives for the list '" + list_name + "' (looked in " + os.path.abspath(input) + ")"},
                                 context_instance=RequestContext(request))
 
   if (not os.path.isdir(input)):
-      return render_to_response('configureAnalysis.html',
+      return render_to_response('configureImport.html',
                                 {'error_message': input + " exits but is not a directory"},
                                 context_instance=RequestContext(request))
   
