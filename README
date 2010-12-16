@@ -17,15 +17,24 @@ through to adding additional analysis.
 Features
 --------
 
- * Extend message processing with plugins, supplied plugins include:
-   * Automatically assign tasks based on regular expression matches
-   * Wrap body text
- * Retrieve emails from a POP3 account
- * Import a mailbox archive
- * Build a social graph from communication archives
- * Automatically create a ticket, upon email import, to ensure emails are 
-   responded to in an appropriate time
+ * Modularised application structure allowing reuse of applications 
+ 
+ * Mail App
+   * Retrieve emails from a POP3 account
+   * Automatically create a ticket, upon email import, to ensure emails are 
+     responded to in an appropriate time
+   * Extend message processing with plugins, supplied plugins include:
+     * Automatically assign tasks based on regular expression matches
+     * Wrap body text
+ 
+ * Mailbox Analysis App
+ 	* Import a mailbox archive
+ 	* Build a social graph from communication archives
 
+ * Menu App
+    * Database driven menu system
+    * Template Tags for inclusion in any page
+    
 Installation
 ============
 
