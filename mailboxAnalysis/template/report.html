@@ -16,7 +16,7 @@
   	{% else %}
 	    <ol>
 	      {% for participant in new_participants %}
-	      	<li>{{ participant }}</li>
+	      	<li><a href="{% url participant_detail participant_id=participant.id %}">{{ participant }}</a></li>
 	      {% endfor %}
 	    </ol>
 	{% endif %}
