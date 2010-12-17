@@ -11,9 +11,19 @@
 # WARNING
 ###############################################################
 
+echo "reset mailboxAnalysis"
 python manage.py reset mailboxAnalysis
+
+echo "reset messageProcesingPlugin_Action"
 python manage.py reset messageProcessingPlugin_Action
+
+echo "reset menu"
+python manage.py reset menu
+
+echo "reset helpdesk"
 python manage.py reset helpdesk
+
+echo "reset tagging"
 python manage.py reset tagging
 
 python manage.py syncdb
