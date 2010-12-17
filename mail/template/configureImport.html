@@ -6,7 +6,7 @@
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 {% block content %}
-<form action="/analysis/startImport" method="post">
+<form action="/mail/startImport" method="post">
     {% csrf_token %}
     <p>
       <label for="id_list">List name:</label>

@@ -31,10 +31,21 @@
     "pk": 2,
     "fields": {
       "body_pattern": ".*[\\s\\,\\.]+(Ross|Gardler).*",
-      "action_title": "Action required because contains your name",
+      "action_title": "Mentioned in EMail",
       "action_queue": 1,
       "action_description": "This email contains your name and is therefore marked for your priority attention.",
-      "action_priority": 1
+      "action_priority": 2
+    }
+  },
+  {
+    "model": "messageProcessingPlugin_Action.ActionPattern",
+    "pk": 2,
+    "fields": {
+      "body_pattern": "svn commit.*",
+      "action_title": "Code review",
+      "action_queue": 1,
+      "action_description": "This email is a svn commit log and requires review.",
+      "action_priority": 3
     }
   }
   

@@ -66,5 +66,15 @@
      	"login_required": false, 
      	"order": 120, 
      	"title": "Retrieve"}
+   },
+   {
+     "model": "menu.menuitem", 
+     "pk": "amail.import", 
+     "fields": {
+     	"menu": "mail", 
+     	"link_url": "/mail/configureImport", 
+     	"login_required": false, 
+     	"order": 200, 
+     	"title": "Import"}
    }
 ]

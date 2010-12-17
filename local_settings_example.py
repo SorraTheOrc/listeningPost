@@ -24,3 +24,6 @@ EXTRA_INSTALLED_APPS = (
     'messageProcessingPlugin_Action',
     'messageProcessingPlugin_TextWrap',
 )
+
+# Location to store archive data (relative to project root)
+DATA_DIRECTORY = "archives"

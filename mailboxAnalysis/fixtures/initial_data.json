@@ -25,16 +25,6 @@
    }, 
    {
      "model": "menu.menuitem", 
-     "pk": "analysis.import", 
-     "fields": {
-     	"menu": "analysis", 
-     	"link_url": "/analysis/configureImport", 
-     	"login_required": false, 
-     	"order": 30, 
-     	"title": "Import"}
-   }, 
-   {
-     "model": "menu.menuitem", 
      "pk": "analysis.report", 
      "fields": {
      	"menu": "analysis", 

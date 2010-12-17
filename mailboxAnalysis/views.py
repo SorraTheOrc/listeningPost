@@ -1,4 +1,3 @@
-from mailboxAnalysis.models import Archive
 from mailboxAnalysis.models import Message
 from mailboxAnalysis.models import Maillist
 from mailboxAnalysis.models import Participant
@@ -75,8 +74,6 @@ def _get_social_graph(emails, participant, decay = 5, maxage = 2000, depth = 2):
     friends.reverse()
     return friends
 
-data_directory = "archives"
-
 def index(request):
   data = {}
   data["total_lists"] = Maillist.objects.count()
@@ -143,106 +140,3 @@ def social_graph(request, participant_id):
   data["dot"] = dot
   return render_to_response("socialGraph.html", data, context_instance = RequestContext(request))
 
-def configure_import(request):
-  """
-  Render a form which allows the user to configure an analysis run
-  that will import any new messages.
-  """
-  data = {}
-  data.update(csrf(request))
-  return render_to_response('configureImport.html', 
-                            data,
-                            context_instance = RequestContext(request))
-  
-def start_import(request):
-  """
-  Start a request from a POST. The request variable 'list' should contain
-  the name of the list we want to process. This name should be a directory
-  in the projects data_directory, within this folder there should be one
-  or more archive files for the mail list.
-  data_directory defaults to the project root directory.
-  """
-  global data_directory
-
-  list_name = request.POST['list']
-  input = os.path.join(data_directory, list_name)
-  if (not os.path.exists(input)):
-      return render_to_response('configureImport.html',
-                                {'error_message': "Unable to find any archives for the list '" + list_name + "' (looked in " + os.path.abspath(input) + ")"},
-                                context_instance=RequestContext(request))
-
-  if (not os.path.isdir(input)):
-      return render_to_response('configureImport.html',
-                                {'error_message': input + " exits but is not a directory"},
-                                context_instance=RequestContext(request))
-  
-  results = crawl(input)
-  results["list"] = list_name
-  emails_after = Message.objects.count()
-  results["total_emails"] = emails_after
-  return render_to_response("importResults.html",
-                            results,
-                            context_instance = RequestContext(request))
-
-def msgfactory(file):
-    """ create a mail message from the given file """
-    
-    try:
-        return email.message_from_file(file)
-    except:
-        return ''
-
-
-def crawl(input):
-  """
-  Crawl a directory that should contain mail archives and process any archives found
-  that have not yet been processed.
-  """
-  global data_directory
-  results = None
-
-  files = glob.glob(input + "/*")
-  files.sort()
-  for f in files:
-      results = process(f)
-  return results
-    
-def process(file):
-  """
-  Process a single archive file. The archive may, or may not be a gzipped file.
-  """
-  print "Processing file at " + file
-  processed = 0
-  invalid = 0
-  no_backlink = 0
-
-  if file[-3:] == '.gz':
-      input = gzip.open(file, 'r')
-  else:
-      input = open(file, 'r')
-
-  mbox = mailbox.UnixMailbox(input, msgfactory)
-
-  duplicate = 0
-  new = 0
-
-  for mail in mbox:
-      if (mail != ''):
-          processed += 1
-          created, values = record_email(mail)
-          if not values["backlink"]: 
-              no_backlink += 1
-          if created:
-              new += 1
-          else:
-              duplicate += 1
-      else:
-          invalid += 1
-          print "Invalid mail"
-      
-  archive = Archive(file, list)
-  archive.save()
-
-  return {"processed": processed, "created": new, "duplicate": duplicate, 
-          "invalid": invalid, "with_backlink": processed - no_backlink, 
-          "no_backlink": no_backlink}

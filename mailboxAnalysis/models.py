@@ -16,13 +16,6 @@ class Maillist(models.Model):
     def __unicode__(self):
         return u"%s" % (self.name)
 
-class Archive(models.Model):
-    filename = models.CharField(max_length = 150, primary_key=True)
-    list = models.ForeignKey(Maillist)
-
-    def __unicode__(self):
-        return u"%s" % (self.filename)
-
 class Participant(models.Model):
     id = models.AutoField(primary_key = True)
     emailAddr = models.CharField(max_length=200, unique=True)
