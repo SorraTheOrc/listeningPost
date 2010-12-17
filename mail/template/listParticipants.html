@@ -17,7 +17,7 @@
   {% for participant in participants.object_list %}
     <tr>
       <td><a href="{% url participant_detail participant_id=participant.id %}">{{ participant.emailAddr }}</a></td>
-      <td>{{ participant.email_count }}</td>
+      <td><a href="{% url participant_emails participant_id=participant.id %}" alt="Display all emails from this participant" title="Participants emails">{{ participant.email_count }}</a></td>
       <td>{{ participant.reply_to_count }}</td>
       <td><a href="{% url social_graph participant_id=participant.id %}">Social Graph</a></td>
     </tr>
