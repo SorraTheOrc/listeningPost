@@ -41,7 +41,7 @@
     "model": "messageProcessingPlugin_Action.ActionPattern",
     "pk": 2,
     "fields": {
-      "body_pattern": "svn commit.*",
+      "subject_pattern": "svn commit.*",
       "action_title": "Code review",
       "action_queue": 1,
       "action_description": "This email is a svn commit log and requires review.",

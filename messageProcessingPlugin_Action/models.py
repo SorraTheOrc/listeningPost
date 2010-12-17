@@ -46,5 +46,5 @@ class ActionPattern(models.Model):
                                  )
 
     def __unicode__(self):
-        return u"%s" % (self.subject_pattern)
+        return u"%s" % (self.action_title)
 
