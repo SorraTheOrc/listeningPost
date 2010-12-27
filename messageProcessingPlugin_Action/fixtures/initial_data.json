@@ -19,22 +19,11 @@
     "model": "messageProcessingPlugin_Action.ActionPattern",
     "pk": 1,
     "fields": {
-      "subject_pattern": "\\[VOTE\\].*",
+      "subject_pattern": "^\\[VOTE\\].*",
       "action_title": "Cast vote",
       "action_queue": 2,
       "action_description": "Your vote is required on an issue",
       "action_priority": 1
-    }
-  },
-  {
-    "model": "messageProcessingPlugin_Action.ActionPattern",
-    "pk": 2,
-    "fields": {
-      "body_pattern": ".*[\\s\\,\\.]+(Ross|Gardler).*",
-      "action_title": "Mentioned in EMail",
-      "action_queue": 1,
-      "action_description": "This email contains your name and is therefore marked for your priority attention.",
-      "action_priority": 2
     }
   },
   {
@@ -47,6 +36,16 @@
       "action_description": "This email is a svn commit log and requires review.",
       "action_priority": 3
     }
+  },
+  {
+    "model": "messageProcessingPlugin_Action.ActionPattern",
+    "pk": 3,
+    "fields": {
+      "body_pattern": ".*[\\s\\,\\.]+(Ross|Gardler).*",
+      "action_title": "Mentioned in EMail",
+      "action_queue": 1,
+      "action_description": "This email contains your name and is therefore marked for your priority attention.",
+      "action_priority": 2
+    }
   }
-  
 ]
