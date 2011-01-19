@@ -11,6 +11,7 @@
     <th>Date</th>
     <th>Subject</th>
     <th>In reply to</th>
+    <th>On List</th>
     <th>Action Needed</th>
   </td>
 
@@ -25,6 +26,9 @@
     {% else %}
           &nbsp;
 	{% endif %}
+      </td>
+      <td>
+        {{ email.list }}
       </td>
       <td>
       	<ul>

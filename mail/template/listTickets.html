@@ -19,7 +19,8 @@
 	      <div class="email">
 	        <p><a href="{% url reply_email email_id=email.id %}" class="button">Reply</a>
 	        <a href="{% url view_email email_id=email.id %}">{{ email.subject }}</a>
-	        from <a href="{% url participant_detail participant_id=email.fromParticipant.id %}">{{ email.fromParticipant }}</a></p>
+	        from <a href="{% url participant_detail participant_id=email.fromParticipant.id %}">{{ email.fromParticipant }}</a>
+	        on {{email.list }}</p>
 	        <p><pre>{{ email.body }}</pre></p>
 	      </div>
 	      <p><a href="{% url mark_ticket_complete ticket_id=ticket.id %}" class="button">Mark Complete</a></p>
