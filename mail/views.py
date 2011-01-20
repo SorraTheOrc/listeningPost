@@ -72,7 +72,6 @@ def list_email_tickets(request):
     data["tickets"] = _paginate(request, tickets)
     return render_to_response("listTickets.html", data, context_instance = RequestContext(request))
 
-
 def ticket_mark_complete(request, ticket_id):
   resolution = "Marked complete by " + request.user.username
   action = Ticket.objects.get(pk=ticket_id)

@@ -13,6 +13,11 @@ class Maillist(models.Model):
         return Message.objects.filter(list = self).count()
     email_count = property(_get_email_count)
     
+    def _get_action_count(self):
+    	messages = Message.objects.filter(list=self).filter(action__status = Ticket.OPEN_STATUS)
+        return messages.count()
+    action_count = property(_get_action_count)
+    
     def __unicode__(self):
         return u"%s" % (self.name)
 

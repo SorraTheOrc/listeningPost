@@ -9,12 +9,14 @@
   <tr>
     <th>Mailing List Name</th>
     <th>Emails</th>
+    <th>Requiring Action</th>
   </td>
 
   {% for list in lists.object_list %}
     <tr>
       <td><a href="{% url mailinglist_email list_id=list.id %}">{{ list.name }}</a></td>
       <td>{{ list.email_count }}</td>
+      <td>{{ list.action_count }}</td>
     </tr>
   {% endfor %}
 </table>
